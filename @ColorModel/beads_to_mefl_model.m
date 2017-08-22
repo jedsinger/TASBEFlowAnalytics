@@ -32,6 +32,15 @@ if ~isempty(force_peak)
     warning('TASBE:Beads','Forcing interpretation of first detected peak as peak number %i',force_peak);
 end
 
+if regexp(lower(beadfile),'.fcs$')
+    isFCS = true;
+elseif regexp(lower(beadfile),'.csv$')
+    isFCS = false;
+else
+    warning('TASBE:Beads','Could not identify bead file from extension, assuming FCS');
+    isFCS = true;
+end
+
 
 peak_threshold = CM.bead_peak_threshold;
 bin_min = CM.bead_min;
@@ -71,13 +80,28 @@ else
     segmentName = nameFC;
 end
 
-[fcsraw fcshdr fcsdat] = fca_readfcs(beadfile);
-bead_data = get_fcs_color(fcsdat,fcshdr,nameFC);
-segment_data = get_fcs_color(fcsdat,fcshdr,segmentName);
+if isFCS,
+    [~, fcshdr, fcsdat] = fca_readfcs(beadfile);
+    bead_data = get_fcs_color(fcsdat,fcshdr,nameFC);
+    segment_data = get_fcs_color(fcsdat,fcshdr,segmentName);
+else % Microscopy: CSV output from CellProfiler
+    values = readtable(beadfile); 
+    index = find(not(cellfun('isempty', strfind(values.Properties.VariableNames,'_IntegratedIntensity_'))));
+    if numel(index)==0,
+        error('TASBE:Beads','Unable to find object intensities in bead file');
+    elseif numel(index)>1,
+        warning('TASBE:Beads','Found multiple integrated intensities, using first');
+        index = index(1);
+    end
+    % TODO: allow secondary colors for segmenting microscopy data
+    bead_data = table2array(values(:,index));
+    segment_data = bead_data;
+end
 
 % The full range of bins (for plotting purposes) covers everything from 1 to the max value (rounded up)
 range_max = max(bin_max,ceil(log10(max(bead_data(:)))));
-range_bin_edges = 10.^(0:bin_increment:range_max);
+range_min = min(bin_min,floor(log10(min(bead_data(bead_data>0)))));
+range_bin_edges = 10.^(range_min:bin_increment:range_max);
 range_n = (size(range_bin_edges,2)-1);
 range_bin_centers = range_bin_edges(1:range_n)*10.^(bin_increment/2);
 
@@ -130,61 +154,63 @@ end
 
 % Gather the peaks from all the channels
 peak_sets = cell(numel(CM.Channels),1);
-for i=1:numel(CM.Channels),
-    alt_bead_data = get_fcs_color(fcsdat,fcshdr,getName(CM.Channels{i}));
-    alt_bin_counts = zeros(size(bin_centers));
-    for j=1:n
-        which = alt_bead_data(:)>bin_edges(j) & alt_bead_data(:)<=bin_edges(j+1);
-        alt_bin_counts(j) = sum(which);
-    end
-    alt_range_bin_counts = zeros(size(range_bin_centers));
-    for j=1:range_n
-        which = alt_bead_data(:)>range_bin_edges(j) & alt_bead_data(:)<=range_bin_edges(j+1);
-        alt_range_bin_counts(j) = sum(which);
-    end
+if isFCS, % TODO: generalize this for multicolor microscopy files too
+    for i=1:numel(CM.Channels),
+        alt_bead_data = get_fcs_color(fcsdat,fcshdr,getName(CM.Channels{i}));
+        alt_bin_counts = zeros(size(bin_centers));
+        for j=1:n
+            which = alt_bead_data(:)>bin_edges(j) & alt_bead_data(:)<=bin_edges(j+1);
+            alt_bin_counts(j) = sum(which);
+        end
+        alt_range_bin_counts = zeros(size(range_bin_centers));
+        for j=1:range_n
+            which = alt_bead_data(:)>range_bin_edges(j) & alt_bead_data(:)<=range_bin_edges(j+1);
+            alt_range_bin_counts(j) = sum(which);
+        end
 
-    % identify peaks
-    alt_n_peaks = 0;
-    alt_peak_means = [];
-    alt_peak_counts = [];
-    in_peak = 0;
-    for j=1:n
-        if in_peak==0 % outside a peak: look for start
-            if(alt_bin_counts(j) >= peak_threshold(i))
-                alt_peak_min = bin_edges(j);
-                in_peak=1;
-            end
-        else % inside a peak: look for end
-            if(alt_bin_counts(j) < peak_threshold(i))
-                alt_peak_max = bin_edges(j);
-                in_peak=0;
-                % compute peak statistics
-                alt_n_peaks = alt_n_peaks+1;
-                which = alt_bead_data(:)>alt_peak_min & alt_bead_data(:)<=alt_peak_max;
-                alt_peak_means(alt_n_peaks) = mean(alt_bead_data(which)); % arithmetic q. beads only have measurement noise
-                alt_peak_counts(alt_n_peaks) = sum(which);
+        % identify peaks
+        alt_n_peaks = 0;
+        alt_peak_means = [];
+        alt_peak_counts = [];
+        in_peak = 0;
+        for j=1:n
+            if in_peak==0 % outside a peak: look for start
+                if(alt_bin_counts(j) >= peak_threshold(i))
+                    alt_peak_min = bin_edges(j);
+                    in_peak=1;
+                end
+            else % inside a peak: look for end
+                if(alt_bin_counts(j) < peak_threshold(i))
+                    alt_peak_max = bin_edges(j);
+                    in_peak=0;
+                    % compute peak statistics
+                    alt_n_peaks = alt_n_peaks+1;
+                    which = alt_bead_data(:)>alt_peak_min & alt_bead_data(:)<=alt_peak_max;
+                    alt_peak_means(alt_n_peaks) = mean(alt_bead_data(which)); % arithmetic q. beads only have measurement noise
+                    alt_peak_counts(alt_n_peaks) = sum(which);
+                end
             end
         end
-    end
-    peak_sets{i} = alt_peak_means;
+        peak_sets{i} = alt_peak_means;
 
-    % Make plots for all peaks, not just FITC
-    if makePlots >= 2
-        graph_max = max(alt_range_bin_counts);
-        h = figure('PaperPosition',[1 1 5 3.66]);
-        set(h,'visible','off');
-        semilogx(range_bin_centers,alt_range_bin_counts,'b-'); hold on;
-        for j=1:alt_n_peaks
-            semilogx([alt_peak_means(j) alt_peak_means(j)],[0 graph_max],'r-');
+        % Make plots for all peaks, not just FITC
+        if makePlots >= 2
+            graph_max = max(alt_range_bin_counts);
+            h = figure('PaperPosition',[1 1 5 3.66]);
+            set(h,'visible','off');
+            semilogx(range_bin_centers,alt_range_bin_counts,'b-'); hold on;
+            for j=1:alt_n_peaks
+                semilogx([alt_peak_means(j) alt_peak_means(j)],[0 graph_max],'r-');
+            end
+            % show range where peaks were searched for
+            plot(10.^[bin_min bin_min],[0 graph_max],'k:');
+            text(10.^(bin_min),graph_max/2,'peak search min value','Rotation',90,'FontSize',7,'VerticalAlignment','top','FontAngle','italic');
+            plot(10.^[bin_max bin_max],[0 graph_max],'k:');
+            text(10.^(bin_max),graph_max/2,'peak search max value','Rotation',90,'FontSize',7,'VerticalAlignment','bottom','FontAngle','italic');
+            xlabel(sprintf('FACS a.u. for %s channel',getPrintName(CM.Channels{i}))); ylabel('Beads');
+            title(sprintf('Peak identification for %s for SPHERO RCP-30-5A beads',getPrintName(CM.Channels{i})));
+            outputfig(h, sprintf('bead-calibration-%s',getPrintName(CM.Channels{i})),path);
         end
-        % show range where peaks were searched for
-        plot(10.^[bin_min bin_min],[0 graph_max],'k:');
-        text(10.^(bin_min),graph_max/2,'peak search min value','Rotation',90,'FontSize',7,'VerticalAlignment','top','FontAngle','italic');
-        plot(10.^[bin_max bin_max],[0 graph_max],'k:');
-        text(10.^(bin_max),graph_max/2,'peak search max value','Rotation',90,'FontSize',7,'VerticalAlignment','bottom','FontAngle','italic');
-        xlabel(sprintf('FACS a.u. for %s channel',getPrintName(CM.Channels{i}))); ylabel('Beads');
-        title(sprintf('Peak identification for %s for SPHERO RCP-30-5A beads',getPrintName(CM.Channels{i})));
-        outputfig(h, sprintf('bead-calibration-%s',getPrintName(CM.Channels{i})),path);
     end
 end
 
@@ -242,10 +268,10 @@ if makePlots
     text(10.^(bin_min),graph_max/2,'peak search min value','Rotation',90,'FontSize',7,'VerticalAlignment','top','FontAngle','italic');
     plot(10.^[bin_max bin_max],[0 graph_max],'k:');
     text(10.^(bin_max),graph_max/2,'peak search max value','Rotation',90,'FontSize',7,'VerticalAlignment','bottom','FontAngle','italic');
-    plot(10.^[0 range_max],[peak_threshold(i_FITC) peak_threshold(i_FITC)],'k:');
+    plot(10.^[range_min range_max],[peak_threshold(i_FITC) peak_threshold(i_FITC)],'k:');
     text(1,peak_threshold(i_FITC),'clutter threshold','FontSize',7,'HorizontalAlignment','left','VerticalAlignment','bottom','FontAngle','italic');
     title('Peak identification for SPHERO RCP-30-5A beads');
-    xlim(10.^[0 range_max]);
+    xlim(10.^[range_min range_max]);
     if segment_secondary
         xlabel(['FACS ' segmentName ' units']); ylabel('Beads');
         outputfig(h,'bead-calibration-secondary',path);
