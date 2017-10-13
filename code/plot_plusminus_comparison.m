@@ -21,9 +21,19 @@ in_units = getChannelUnits(AP,'input');
 out_units = getChannelUnits(AP,'output');
 cfp_units = getChannelUnits(AP,'constitutive');
 
-legendentries = cell(n_var,1);
-for i=1:n_var, legendentries{i} = num2str(variable(i)); end;
+legendentries = cell(0);
+% fill in entries, trimming those that won't get graphed
+for i=1:step:n_var
+    which = pm_results.Valid(:,i,1) & pm_results.Valid(:,i,2);
+    entrystr = num2str(variable(i));
+    if numel(which)>0 && sum(which)>0
+        legendentries{end+1} = entrystr; % not pre-allocated because we don't know how many are valid
+    else
+        warning('PlotPlusMinus:EmptyResults','No active results for %s: not enough data or bad active component fit',entrystr);
+    end
+end;
 
+% Enhance or modify for plus/minus graphs
 if n_var == 1, 
     pmlegendentries{1} = 'Plus';
 else
