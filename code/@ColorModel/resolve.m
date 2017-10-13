@@ -36,7 +36,19 @@ end
     end
     
     % Next, autofluorescence and compensation model
-    CM.autofluorescence_model = computeAutoFluorescence(CM,settings, path);
+    if hasSetting(settings,'override_autofluorescence')
+        afmean = getSetting(settings,'override_autofluorescence');
+        if numel(afmean)==1, afmean = afmean*ones(numel(CM.Channels),1); end;
+        warning('TASBE:ColorModel','Warning: overriding autofluorescence model with specified values.');
+        for i=1:numel(afmean),
+            CM.autofluorescence_model{i} = AutoFluorescenceModel(afmean(i)*ones(10,1));
+            if(CM.Channels{i} == CM.FITC_channel)
+                CM.autofluorescence_model{i}=MEFLize(CM.autofluorescence_model{i},1,getK_MEFL(CM.unit_translation));
+            end
+        end
+    else
+        CM.autofluorescence_model = computeAutoFluorescence(CM,settings,path);
+    end
     if hasSetting(settings,'override_compensation')
         matrix = getSetting(settings,'override_compensation');
         warning('TASBE:ColorModel','Warning: overriding compensation model with specified values.');
