@@ -50,11 +50,11 @@ i_FITC = find(CM,FITC_channel);
 %PeakMEFLs = [791	2083	6562	16531	47575	136680	271771];
 
 PeakMEFLs = get_bead_peaks(CM.bead_model,CM.bead_channel,CM.bead_batch);
-if(numel(PeakMEFLs>7))
+if(numel(PeakMEFLs)>7)
     PeakMEFLs = PeakMEFLs((end-6):end);
-else if(PeakMEFLs<7)
-        error('Cannot use beads with less than 7 peaks');
-    end
+elseif(numel(PeakMEFLs)<7)
+    warning('Beads have less than 7 peaks; padding bottom with zeros');
+    PeakMEFLs = [zeros(1,7-numel(PeakMEFLs)) PeakMEFLs];
 end
 
 % identify peaks
