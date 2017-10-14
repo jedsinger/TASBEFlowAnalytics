@@ -8,7 +8,7 @@
 
 function plot_batch_histograms(results,sampleresults,outputsettings,linespecs)
 
-n_conditions = numel(sampleresults);
+n_conditions = size(sampleresults,1);
 n_colors = numel(linespecs);
 
 fprintf('Plotting histograms');
@@ -18,13 +18,13 @@ maxcount = 1e1;
 for i=1:n_conditions
     h = figure('PaperPosition',[1 1 5 3.66]);
     set(h,'visible','off');
-    replicates = sampleresults{i};
-    numReplicates = numel(replicates);
-    for j=1:numReplicates,
-        counts = replicates{j}.BinCounts;
-        bin_centers = results{i}.bincenters;
-        for k=1:n_colors
-            loglog(bin_centers,counts(:,k),linespecs{k}); hold on;
+    bin_centers = results{i}.bincenters;
+    for k=1:n_colors
+        replicates = sampleresults{i,k};
+        numReplicates = numel(replicates);
+        for j=1:numReplicates,
+            counts = replicates{j}.BinCounts;
+            loglog(bin_centers,counts,linespecs{k}); hold on;
         end
         maxcount = max(maxcount,max(max(counts)));
     end
@@ -37,7 +37,7 @@ for i=1:n_conditions
     ylim([1e0 10.^(ceil(log10(maxcount)))]);
     if(outputsettings.FixedInputAxis), xlim(outputsettings.FixedInputAxis); end;
     %ylim([0 maxcount*1.1]);
-    title([outputsettings.StemName ' ' results{i}.condition ' bin counts, by color']);
+    title([outputsettings.StemName ' ' clean_for_latex(results{i}.condition) ' bin counts, by color']);
     outputfig(h,[outputsettings.StemName '-' results{i}.condition '-bincounts'],outputsettings.Directory);
     fprintf('.');
 end;
