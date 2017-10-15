@@ -53,8 +53,8 @@ PeakMEFLs = get_bead_peaks(CM.bead_model,CM.bead_channel,CM.bead_batch);
 if(numel(PeakMEFLs)>7)
     PeakMEFLs = PeakMEFLs((end-6):end);
 elseif(numel(PeakMEFLs)<7)
-    warning('Beads have less than 7 peaks; padding bottom with zeros');
-    PeakMEFLs = [zeros(1,7-numel(PeakMEFLs)) PeakMEFLs];
+    warning('Beads have less than 7 peaks; padding bottom');
+    PeakMEFLs = [ones(1,7-numel(PeakMEFLs)) PeakMEFLs];
 end
 
 % identify peaks
