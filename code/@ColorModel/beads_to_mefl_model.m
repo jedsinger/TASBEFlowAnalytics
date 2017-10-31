@@ -256,11 +256,10 @@ if makePlots
     text(1,peak_threshold(i_FITC),'clutter threshold','FontSize',7,'HorizontalAlignment','left','VerticalAlignment','bottom','FontAngle','italic');
     title('Peak identification for SPHERO RCP-30-5A beads');
     xlim(10.^[0 range_max]);
+    xlabel(['FACS ' segmentName ' units']); ylabel('Beads');
     if segment_secondary
-        xlabel(['FACS ' segmentName ' units']); ylabel('Beads');
         outputfig(h,'bead-calibration-secondary',path);
     else
-        xlabel('FACS FITC units'); ylabel('Beads');
         outputfig(h,'bead-calibration',path);
     end
 end
@@ -277,7 +276,7 @@ if makePlots>1
     for i=1:n_peaks
         text(peak_means(i),PeakMEFLs(i+first_peak-2)*1.3,sprintf('%i',i+first_peak-1));
     end
-    xlabel('FACS FITC units'); ylabel('Beads MEFLs');
+    xlabel([nameFC ' Bead Peak Means']); ylabel('Beads MEFLs');
     title('Peak identification for SPHERO RCP-30-5A beads');
     %legend('Location','NorthWest','Observed','Linear Fit','Constrained Fit');
     legend('Observed','Constrained Fit','Location','NorthWest');
@@ -301,7 +300,7 @@ if makePlots
             semilogy(peak_means(i),log10(segment_peak_means(i)),'k+');
             text(peak_means(i),log10(segment_peak_means(i))+0.1,sprintf('%i',i+first_peak-1));
         end
-        xlabel('FACS FITC units'); ylabel(['FACS ' segmentName ' units']);
+        xlabel(['FACS ' nameFC ' units']); ylabel(['FACS ' segmentName ' units']);
         title('Peak identification for SPHERO RCP-30-5A beads');
         outputfig(h,'bead-calibration',path);
     end
