@@ -33,7 +33,7 @@ CM=set_bead_model(CM,'SpheroTech RCP-30-5A'); % Entry from BeadCatalog.xls match
 CM=set_bead_batch(CM,'Lot AA01, AA02, AA03, AA04, AB01, AB02, AC01, GAA01-R'); % Entry from BeadCatalog.xls containing your lot
 CM=set_bead_channel(CM,'PE-TR');
 
-CM=set_FITC_channel_name(CM, 'PE-Tx-Red-YG-A');
+CM=set_ERF_channel_name(CM, 'PE-Tx-Red-YG-A');
 
 settings = TASBESettings();
 settings = setSetting(settings, 'path', '/tmp/plots');
