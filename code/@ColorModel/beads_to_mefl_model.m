@@ -182,7 +182,7 @@ for i=1:numel(CM.Channels),
         text(10.^(bin_min),graph_max/2,'peak search min value','Rotation',90,'FontSize',7,'VerticalAlignment','top','FontAngle','italic');
         plot(10.^[bin_max bin_max],[0 graph_max],'k:');
         text(10.^(bin_max),graph_max/2,'peak search max value','Rotation',90,'FontSize',7,'VerticalAlignment','bottom','FontAngle','italic');
-        xlabel(sprintf('FACS a.u. for %s channel',getPrintName(CM.Channels{i}))); ylabel('Beads');
+        xlabel(sprintf('a.u. for %s channel',getPrintName(CM.Channels{i}))); ylabel('Beads');
         title(sprintf('Peak identification for %s for SPHERO RCP-30-5A beads',getPrintName(CM.Channels{i})));
         outputfig(h, sprintf('bead-calibration-%s',getPrintName(CM.Channels{i})),path);
     end
@@ -256,7 +256,7 @@ if makePlots
     text(1,peak_threshold(i_FITC),'clutter threshold','FontSize',7,'HorizontalAlignment','left','VerticalAlignment','bottom','FontAngle','italic');
     title('Peak identification for SPHERO RCP-30-5A beads');
     xlim(10.^[0 range_max]);
-    xlabel(['FACS ' segmentName ' units']); ylabel('Beads');
+    xlabel([CM.bead_channel ' a.u.']); ylabel('Beads');
     if segment_secondary
         outputfig(h,'bead-calibration-secondary',path);
     else
@@ -276,7 +276,7 @@ if makePlots>1
     for i=1:n_peaks
         text(peak_means(i),PeakMEFLs(i+first_peak-2)*1.3,sprintf('%i',i+first_peak-1));
     end
-    xlabel([nameFC ' Bead Peak Means']); ylabel('Beads MEFLs');
+    xlabel([CM.bead_channel ' a.u.']); ylabel('Beads MEFLs');
     title('Peak identification for SPHERO RCP-30-5A beads');
     %legend('Location','NorthWest','Observed','Linear Fit','Constrained Fit');
     legend('Observed','Constrained Fit','Location','NorthWest');
@@ -300,7 +300,7 @@ if makePlots
             semilogy(peak_means(i),log10(segment_peak_means(i)),'k+');
             text(peak_means(i),log10(segment_peak_means(i))+0.1,sprintf('%i',i+first_peak-1));
         end
-        xlabel(['FACS ' nameFC ' units']); ylabel(['FACS ' segmentName ' units']);
+        xlabel([CM.bead_channel ' a.u.']); ylabel([segmentName ' a.u.']);
         title('Peak identification for SPHERO RCP-30-5A beads');
         outputfig(h,'bead-calibration',path);
     end
