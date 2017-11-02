@@ -256,10 +256,12 @@ if makePlots
     text(1,peak_threshold(i_FITC),'clutter threshold','FontSize',7,'HorizontalAlignment','left','VerticalAlignment','bottom','FontAngle','italic');
     title(sprintf('Peak identification for %s beads', CM.bead_model));
     xlim(10.^[0 range_max]);
-    xlabel([CM.bead_channel ' a.u.']); ylabel('Beads');
+    ylabel('Beads');
     if segment_secondary
+        xlabel([segmentName ' a.u.']); 
         outputfig(h,'bead-calibration-secondary',path);
     else
+        xlabel([CM.bead_channel ' a.u.']); 
         outputfig(h,'bead-calibration',path);
     end
 end
