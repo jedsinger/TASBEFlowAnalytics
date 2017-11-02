@@ -42,7 +42,7 @@ i_FITC = find(CM,FITC_channel);
 
 % SpheroTech RCP-30-5A beads (8 peaks) - only 7 are used here, since the
 % first is not given a MEFL value in the tech notes
-% fprintf('Matching to FITC values for SpheroTech RCP-30-5A beads\n');
+% fprintf('Matching to FITC values for %s beads\n', CM.bead_model);
 % fprintf('Assuming Lot AA01, AA02, AA03, AA04, AB01, AB02, AC01, or GAA01-R\n');
 % PeakMEFLs = [692 2192 6028 17493 35674 126907 290983];
 %PeakRelative = [77.13 108.17 135.42 164.11 183.31 217.49 239.84];
@@ -182,8 +182,8 @@ for i=1:numel(CM.Channels),
         text(10.^(bin_min),graph_max/2,'peak search min value','Rotation',90,'FontSize',7,'VerticalAlignment','top','FontAngle','italic');
         plot(10.^[bin_max bin_max],[0 graph_max],'k:');
         text(10.^(bin_max),graph_max/2,'peak search max value','Rotation',90,'FontSize',7,'VerticalAlignment','bottom','FontAngle','italic');
-        xlabel(sprintf('FACS a.u. for %s channel',getPrintName(CM.Channels{i}))); ylabel('Beads');
-        title(sprintf('Peak identification for %s for SPHERO RCP-30-5A beads',getPrintName(CM.Channels{i})));
+        xlabel(sprintf('a.u. for %s channel',getPrintName(CM.Channels{i}))); ylabel('Beads');
+        title(sprintf('Peak identification for %s for %s beads',getPrintName(CM.Channels{i}), CM.bead_model));
         outputfig(h, sprintf('bead-calibration-%s',getPrintName(CM.Channels{i})),path);
     end
 end
@@ -254,13 +254,14 @@ if makePlots
     text(10.^(bin_max),graph_max/2,'peak search max value','Rotation',90,'FontSize',7,'VerticalAlignment','bottom','FontAngle','italic');
     plot(10.^[0 range_max],[peak_threshold(i_FITC) peak_threshold(i_FITC)],'k:');
     text(1,peak_threshold(i_FITC),'clutter threshold','FontSize',7,'HorizontalAlignment','left','VerticalAlignment','bottom','FontAngle','italic');
-    title('Peak identification for SPHERO RCP-30-5A beads');
+    title(sprintf('Peak identification for %s beads', CM.bead_model));
     xlim(10.^[0 range_max]);
+    ylabel('Beads');
     if segment_secondary
-        xlabel(['FACS ' segmentName ' units']); ylabel('Beads');
+        xlabel([segmentName ' a.u.']); 
         outputfig(h,'bead-calibration-secondary',path);
     else
-        xlabel('FACS FITC units'); ylabel('Beads');
+        xlabel([CM.bead_channel ' a.u.']); 
         outputfig(h,'bead-calibration',path);
     end
 end
@@ -277,8 +278,8 @@ if makePlots>1
     for i=1:n_peaks
         text(peak_means(i),PeakMEFLs(i+first_peak-2)*1.3,sprintf('%i',i+first_peak-1));
     end
-    xlabel('FACS FITC units'); ylabel('Beads MEFLs');
-    title('Peak identification for SPHERO RCP-30-5A beads');
+    xlabel([CM.bead_channel ' a.u.']); ylabel('Beads MEFLs');
+    title(sprintf('Peak identification for %s beads', CM.bead_model));
     %legend('Location','NorthWest','Observed','Linear Fit','Constrained Fit');
     legend('Observed','Constrained Fit','Location','NorthWest');
     outputfig(h,'bead-fit-curve',path);
@@ -301,8 +302,8 @@ if makePlots
             semilogy(peak_means(i),log10(segment_peak_means(i)),'k+');
             text(peak_means(i),log10(segment_peak_means(i))+0.1,sprintf('%i',i+first_peak-1));
         end
-        xlabel('FACS FITC units'); ylabel(['FACS ' segmentName ' units']);
-        title('Peak identification for SPHERO RCP-30-5A beads');
+        xlabel([CM.bead_channel ' a.u.']); ylabel([segmentName ' a.u.']);
+        title(sprintf('Peak identification for %s beads', CM.bead_model));
         outputfig(h,'bead-calibration',path);
     end
 end

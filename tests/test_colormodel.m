@@ -57,7 +57,7 @@ CM=set_bead_min(CM, 2);
 % The peak threshold determines the minumum count per bin for something to
 % be considered part of a peak.  Set if automated threshold finds too many or few peaks
 %CM=set_bead_peak_threshold(CM, 200);
-CM=set_FITC_channel_name(CM, 'FITC-A');
+CM=set_ERF_channel_name(CM, 'FITC-A');
 % Ignore channel data for ith channel if below 10^[value(i)]
 CM=set_translation_channel_min(CM,[2,2,2]);
 
@@ -138,7 +138,7 @@ CM=set_bead_min(CM, 1.8);
 % The peak threshold determines the minumum count per bin for something to
 % be considered part of a peak.  Set if automated threshold finds too many or few peaks
 CM=set_bead_peak_threshold(CM, 600);
-CM=set_FITC_channel_name(CM, 'PE-Tx-Red-YG-A');
+CM=set_ERF_channel_name(CM, 'PE-Tx-Red-YG-A');
 
 settings = TASBESettings();
 settings = setSetting(settings, 'path', '/tmp/plots');
@@ -198,7 +198,7 @@ CM=set_bead_min(CM, 1.8);
 % The peak threshold determines the minumum count per bin for something to
 % be considered part of a peak.  Set if automated threshold finds too many or few peaks
 CM=set_bead_peak_threshold(CM, 600);
-CM=set_FITC_channel_name(CM, 'PE-Tx-Red-YG-A');
+CM=set_ERF_channel_name(CM, 'PE-Tx-Red-YG-A');
 
 settings = TASBESettings();
 settings = setSetting(settings, 'path', '/tmp/plots');
