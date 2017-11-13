@@ -55,13 +55,6 @@ totalNumPeaks = numel(PeakMEFLs);
 numQuantifiedPeaks = sum(~isnan(PeakMEFLs));
 quantifiedPeakMEFLs = PeakMEFLs((end-numQuantifiedPeaks+1):end);
 
-% if(numel(PeakMEFLs>7))
-%     PeakMEFLs = PeakMEFLs((end-6):end);
-% else if(PeakMEFLs<7)
-%         error('Cannot use beads with less than 7 peaks');
-%     end
-% end
-
 % identify peaks
 bin_increment = 0.02;
 bin_edges = 10.^(bin_min:bin_increment:bin_max);
@@ -213,7 +206,7 @@ if(n_peaks>=2)
           if S.normr <= fit_error, fit_error = S.normr; model = poly; first_peak=i+2; best_i = i; end;
         end
         % Warn if setting to anything less than the top peak, since top peak should usually be visible
-        fprintf('Bead peaks identified as %i to %i of %i\n',first_peak,first_peak+n_peaks-2,numQuantifiedPeaks);
+        fprintf('Bead peaks identified as %i to %i of %i\n',first_peak,first_peak+n_peaks-1,totalNumPeaks);
         if best_i < (numQuantifiedPeaks-n_peaks) && n_peaks < 5,
             warning('TASBE:Beads','Few bead peaks and fit does not include highest: error likely');
         end
@@ -231,9 +224,9 @@ if(n_peaks>=2)
     k_MEFL = 10^constrained_fit;
 elseif(n_peaks==1) % 1 peak
     warning('TASBE:Beads','Only one bead peak found, assuming brightest');
-    fit_error = 0; first_peak = numQuantifiedPeaks;
+    fit_error = 0; first_peak = totalNumPeaks;
     if ~isempty(force_peak), first_peak = force_peak; end
-    k_MEFL = quantifiedPeakMEFLs(first_peak)/peak_means;
+    k_MEFL = PeakMEFLs(first_peak)/peak_means;
 else % n_peaks = 0
     warning('Bead calibration failed: found no bead peaks; using single dummy peak');
     k_MEFL = 1;
@@ -250,7 +243,7 @@ if makePlots
     % Show identified peaks
     for i=1:n_peaks
         semilogx([segment_peak_means(i) segment_peak_means(i)],[0 graph_max],'r-');
-        text(peak_means(i),graph_max,sprintf('%i',i+first_peak-2),'VerticalAlignment','top');
+        text(peak_means(i),graph_max,sprintf('%i',i+first_peak-1),'VerticalAlignment','top');
     end
     % show range where peaks were searched for
     plot(10.^[bin_min bin_min],[0 graph_max],'k:');
@@ -280,7 +273,7 @@ if makePlots>1
     %loglog([1 peak_means],[1 peak_means]*(10.^model(2)),'r+--');
     loglog([1 peak_means],[1 peak_means]*k_MEFL,'go--');
     for i=1:n_peaks
-        text(peak_means(i),quantifiedPeakMEFLs(i+first_peak-2)*1.3,sprintf('%i',i+first_peak-2));
+        text(peak_means(i),quantifiedPeakMEFLs(i+first_peak-2)*1.3,sprintf('%i',i+first_peak-1));
     end
     xlabel([CM.bead_channel ' a.u.']); ylabel('Beads MEFLs');
     title(sprintf('Peak identification for %s beads', CM.bead_model));
