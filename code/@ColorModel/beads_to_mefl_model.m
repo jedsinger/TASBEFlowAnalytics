@@ -49,7 +49,7 @@ i_FITC = find(CM,FITC_channel);
 %warning('Substituting a different RCP set');
 %PeakMEFLs = [791	2083	6562	16531	47575	136680	271771];
 
-PeakMEFLs = get_bead_peaks(CM.bead_model,CM.bead_channel,CM.bead_batch);
+[PeakMEFLs,units,actualBatch] = get_bead_peaks(CM.bead_model,CM.bead_channel,CM.bead_batch);
 
 totalNumPeaks = numel(PeakMEFLs);
 numQuantifiedPeaks = sum(~isnan(PeakMEFLs));
@@ -224,13 +224,8 @@ if(n_peaks>=2)
         fit_error = S.normr; model = poly; first_peak = totalNumPeaks;
     end
     if ~isempty(force_peak), first_peak = force_peak; end
-    % Hey Jake, I'm not sure exactly what the -2 is for in the next two
-    % lines.  The other places that had the 7 vs 8 kludge were nicely
-    % labeled with a TODO. If this is a kludge, then I have been
-    % substituting the 2 with a 1 and using PeakMEFLs instead of my newly
-    % created quantifiedPeakMEFLs.
-    constrained_fit = mean(log10(quantifiedPeakMEFLs((1:n_peaks)+first_peak-2)) - log10(peak_means));
-    cf_error = mean(10.^abs(log10((quantifiedPeakMEFLs((1:n_peaks)+first_peak-2)./peak_means) / 10.^constrained_fit)));
+    constrained_fit = mean(log10(PeakMEFLs((1:n_peaks)+first_peak-2)) - log10(peak_means));
+    cf_error = mean(10.^abs(log10((PeakMEFLs((1:n_peaks)+first_peak-2)./peak_means) / 10.^constrained_fit)));
     % Final fit_error should be close to zero / 1-fold
     if(cf_error>1.05), warning('TASBE:Beads','Bead calibration may be incorrect: fit more than 5 percent off: error = %.2d',cf_error); end;
     %if(abs(model(1)-1)>0.05), warning('TASBE:Beads','Bead calibration probably incorrect: fit more than 5 percent off: slope = %.2d',model(1)); end;
@@ -282,7 +277,7 @@ end
 if makePlots>1
     h = figure('PaperPosition',[1 1 5 3.66]);
     set(h,'visible','off');
-    loglog(peak_means,PeakMEFLs((1:n_peaks)+first_peak-1),'b*-'); hold on;
+    loglog(peak_means,PeakMEFLs((1:n_peaks)+first_peak-2),'b*-'); hold on;
     %loglog([1 peak_means],[1 peak_means]*(10.^model(2)),'r+--');
     loglog([1 peak_means],[1 peak_means]*k_MEFL,'go--');
     for i=1:n_peaks
