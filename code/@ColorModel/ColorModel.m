@@ -30,6 +30,7 @@ function CM = ColorModel(beadfile, blankfile, channels, colorfiles, pairfiles)
         CM.translation_channel_min_samples = 100;    % Minimum number of samples in a bin to consider it for translation
         CM.noise_plot = 1 ;         % Should the noise model plots be produced?
         CM.dequantize = 0 ;         % Should small randomness be added to fuzz low bins?
+        CM.standardUnits = 'MEFL';  % Should be the value from column E in BeadCatalog.xlsx 
         
         % other fields
         CM.initialized = 0;        % true after resolution

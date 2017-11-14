@@ -50,6 +50,7 @@ i_FITC = find(CM,FITC_channel);
 %PeakMEFLs = [791	2083	6562	16531	47575	136680	271771];
 
 [PeakMEFLs,units,actualBatch] = get_bead_peaks(CM.bead_model,CM.bead_channel,CM.bead_batch);
+CM.standardUnits = units;
 
 totalNumPeaks = numel(PeakMEFLs);
 numQuantifiedPeaks = sum(~isnan(PeakMEFLs));

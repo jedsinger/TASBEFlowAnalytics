@@ -52,7 +52,7 @@ n_conditions = size(file_pairs,1);
 % Make output plots
 OS = OutputSettings('LacI-CAGop','','','/tmp/plots');
 OS.FixedInputAxis = [1e4 1e10];
-plot_batch_histograms(results,sampleresults,OS,{'b','y','r'});
+plot_batch_histograms(results,sampleresults,OS,{'b','y','r'},CM);
 
 save('/tmp/LacI-CAGop-batch.mat','AP','bins','file_pairs','OS','results','sampleresults');
 
