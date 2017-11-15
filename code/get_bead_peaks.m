@@ -11,9 +11,8 @@ function [peaks units batch] = get_bead_peaks(model,channel,batch)
     % Channel can either be a Channel matched to laser/filter, or a name matched to the name in the catalog
     % Batch is an optional parameter: if no batch is specified (or spec is empty), the first listed batch will be used
     if nargin<3, batch = []; end; % if batch undefined, set to empty
-      forceReload=true;
     
-    catalog = getBeadCatalog(forceReload);
+    catalog = getBeadCatalog();
     % search for a matching model of bead (e.g., 'SpheroTech RCP-30-5A')
     for i=1:numel(catalog)
         modelEntry = catalog{i};
