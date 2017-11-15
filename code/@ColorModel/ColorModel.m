@@ -29,8 +29,7 @@ function CM = ColorModel(beadfile, blankfile, channels, colorfiles, pairfiles)
         CM.translation_channel_min = [];    % If set, all data below 10.^min(channel_id) is excluded from computation
         CM.translation_channel_min_samples = 100;    % Minimum number of samples in a bin to consider it for translation
         CM.noise_plot = 1 ;         % Should the noise model plots be produced?
-        CM.dequantize = 0 ;         % Should small randomness be added to fuzz low bins?
-        CM.standardUnits = 'MEFL';  % Should be the value from column E in BeadCatalog.xlsx 
+        CM.dequantize = 0 ;         % Should small randomness be added to fuzz low bins? 
         
         % other fields
         CM.initialized = 0;        % true after resolution
@@ -71,7 +70,10 @@ function CM = ColorModel(beadfile, blankfile, channels, colorfiles, pairfiles)
             CM.ColorFiles = colorfiles;
             CM.ColorPairFiles = pairfiles;
         end
+        
+        CM.standardUnits = 'MEFL';  % Should be the value from column E in BeadCatalog.xlsx
 
         % constructs for every data file -- this might need another class
         % that associates the file name with a description 
         CM = class(CM,'ColorModel');
+        
