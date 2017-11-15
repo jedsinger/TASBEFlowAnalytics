@@ -11,8 +11,9 @@ function [peaks units batch] = get_bead_peaks(model,channel,batch)
     % Channel can either be a Channel matched to laser/filter, or a name matched to the name in the catalog
     % Batch is an optional parameter: if no batch is specified (or spec is empty), the first listed batch will be used
     if nargin<3, batch = []; end; % if batch undefined, set to empty
+      forceReload=true;
     
-    catalog = getBeadCatalog();
+    catalog = getBeadCatalog(forceReload);
     % search for a matching model of bead (e.g., 'SpheroTech RCP-30-5A')
     for i=1:numel(catalog)
         modelEntry = catalog{i};
@@ -129,5 +130,13 @@ function channelEntry = parseChannel(entries,currentLine)
     if isempty(peaks)
         error('Line %i: bead peak specification must contain at least one peak.',currentLine);
     end
+    
+    % Code added to make sure Octave doesn't throw away the empty peak
+    % cells.
+    cellPeaks = {row{4+(1:lastPeak)}};
+    empties = cellfun('isempty', cellPeaks);
+    cellPeaks(empties) = {NaN};
+    peaks = cell2mat(cellPeaks);
+    
     channelEntry = {name, units, peaks};
 end
