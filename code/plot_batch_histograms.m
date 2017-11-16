@@ -33,6 +33,7 @@ for i=1:n_conditions
             loglog([results{i}.means(k) results{i}.means(k)],[1 maxcount],[linespecs{k} '--']); hold on;
         end
     end
+    
     xlabel(getStandardUnits(CM)); ylabel('Count');
     ylim([1e0 10.^(ceil(log10(maxcount)))]);
     if(outputsettings.FixedInputAxis), xlim(outputsettings.FixedInputAxis); end;
