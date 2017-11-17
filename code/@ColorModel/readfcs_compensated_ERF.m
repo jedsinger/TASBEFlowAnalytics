@@ -11,12 +11,12 @@ function data = readfcs_compensated_ERF(CM,filename,with_AF,floor)
     
     % Read to arbitrary units
     audata = readfcs_compensated_au(CM,filename,with_AF,floor);
-    % Translate each channel to FITC
-    FITCdata = zeros(size(audata));
+    % Translate each channel to ERF
+    ERF_channel_data = zeros(size(audata));
     for i=1:numel(CM.Channels)
-        FITCdata(:,i) = translate(CM.color_translation_model,audata(:,i),CM.Channels{i},CM.FITC_channel);
+        ERF_channel_data(:,i) = translate(CM.color_translation_model,audata(:,i),CM.Channels{i},CM.ERF_channel);
     end
-    % Translate FITC AU to ERFs
+    % Translate ERF AU to ERFs
     k_ERF= getK_ERF(CM.unit_translation);
-    data = FITCdata*k_ERF;
+    data = ERF_channel_data*k_ERF;
     

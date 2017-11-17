@@ -8,7 +8,7 @@
 
 % It is assumed that an array is used to associated this with channels
 %    beadtype    % string, right now always RCP-30-5A
-%    k_ERF      % ERF = k_ERF*FITC
+%    k_ERF      % ERF = k_ERF*ERF_channel_AU
 %    first_peak  % what is the first RCP-30-5A peak visible?
 %    fit_error   % residual from the linear fit
 %    peak_sets   % all peaks from all channels, for logging and comparison

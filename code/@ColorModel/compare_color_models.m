@@ -8,7 +8,7 @@
 
 function [ok ratios] = compare_color_models(CM1, CM2, tolerance)
 
-fprintf('FITC->ERF: %.3e %.3e\n',getK_ERF(CM1.unit_translation),getK_ERF(CM2.unit_translation));
+fprintf('ERF channel AU -> ERF: %.3e %.3e\n',getK_ERF(CM1.unit_translation),getK_ERF(CM2.unit_translation));
 
 for i=1:numel(CM1.Channels)
     fprintf('Channel %i: mean %.3e %.3e',i,getMean(CM1.autofluorescence_model{i}),getMean(CM2.autofluorescence_model{i}));
@@ -24,7 +24,7 @@ disp(getScales(CM1.color_translation_model));
 disp(getScales(CM2.color_translation_model));
 
 
-%         CM.unit_translation=[]  ;      % conversion of FITC channel to ERF
+%         CM.unit_translation=[]  ;      % conversion of ERF channel AU to ERF
 %         CM.autofluorescence_model=[];  % array, one per channel, for removing autofluorescence
 %         CM.compensation_model=[]     ; % For compensating for spectral overlap
-%         CM.color_translation_model=[] ;% For converting and channel to FITC equiv
+%         CM.color_translation_model=[] ;% For converting other channels to ERF channel AU equiv

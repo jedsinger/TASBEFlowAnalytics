@@ -84,7 +84,7 @@ function [scale CM] = compute_translation_scale(CM,data,i,j,ctrl,settings)
     % ERFize channel if possible
     AFMi = CM.autofluorescence_model{i};
     k_ERF=getK_ERF(CM.unit_translation);
-    if(CM.Channels{j}==CM.FITC_channel), CM.autofluorescence_model{i}=ERFize(AFMi,scale,k_ERF); end
+    if(CM.Channels{j}==CM.ERF_channel), CM.autofluorescence_model{i}=ERFize(AFMi,scale,k_ERF); end
 
     if CM.translation_plot
         plot_translation_graph(CM,data,i,j,settings,scale,means,stds,which);
@@ -134,7 +134,7 @@ function [scale CM] = compute_two_color_translation_scale(CM,data,i,j,settings)
     % ERFize channel if possible
     AFMi = CM.autofluorescence_model{i};
     k_ERF=getK_ERF(CM.unit_translation);
-    if(CM.Channels{j}==CM.FITC_channel), CM.autofluorescence_model{i}=ERFize(AFMi,scale,k_ERF); end
+    if(CM.Channels{j}==CM.ERF_channel), CM.autofluorescence_model{i}=ERFize(AFMi,scale,k_ERF); end
 
     if CM.translation_plot
         plot_translation_graph(CM,data,i,j,settings,scale,means,stds,which);

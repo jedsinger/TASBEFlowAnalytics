@@ -42,7 +42,7 @@ end
         warning('TASBE:ColorModel','Warning: overriding autofluorescence model with specified values.');
         for i=1:numel(afmean),
             CM.autofluorescence_model{i} = AutoFluorescenceModel(afmean(i)*ones(10,1));
-            if(CM.Channels{i} == CM.FITC_channel)
+            if(CM.Channels{i} == CM.ERF_channel)
                 CM.autofluorescence_model{i}=ERFize(CM.autofluorescence_model{i},1,getK_ERF(CM.unit_translation));
             end
         end
@@ -64,13 +64,13 @@ end
         scales = getSetting(settings,'override_translation');
         color_translation_model = ColorTranslationModel(CM.Channels,scales);
         for i=1:numel(CM.Channels),
-            if(CM.Channels{i}==CM.FITC_channel) i_fitc = i; end;
+            if(CM.Channels{i}==CM.ERF_channel) i_ERF = i; end;
         end
         for i=1:numel(CM.Channels),
-            if(CM.Channels{i}==CM.FITC_channel) continue; end;
+            if(CM.Channels{i}==CM.ERF_channel) continue; end;
             AFMi = CM.autofluorescence_model{i};
             k_ERF=getK_ERF(CM.unit_translation);
-            CM.autofluorescence_model{i}=ERFize(AFMi,scales(i,i_fitc),k_ERF);
+            CM.autofluorescence_model{i}=ERFize(AFMi,scales(i,i_ERF),k_ERF);
         end
         warning('TASBE:ColorModel','Warning: overriding translation scaling with specified values.');
     else

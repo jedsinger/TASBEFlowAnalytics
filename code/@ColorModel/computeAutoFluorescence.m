@@ -22,7 +22,7 @@ for i=1:numel(CM.Channels)
     for j=1:numel(fcshdr.par)
         if(strcmp(name,fcshdr.par(j).name) || strcmp(name,fcshdr.par(j).rawname))
             autofluorescence_model{i} = AutoFluorescenceModel(rawfcs(:,j));
-            if(CM.Channels{i} == CM.FITC_channel)
+            if(CM.Channels{i} == CM.ERF_channel)
                 autofluorescence_model{i}=ERFize(autofluorescence_model{i},1,getK_ERF(CM.unit_translation));
             end
             

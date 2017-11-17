@@ -8,7 +8,7 @@
 
 function CM = remapChannels(CM,new_names)
 for i=1:numel(new_names)
-    reset_FITC = (CM.Channels{i}==CM.FITC_channel);
+    reset_ERF = (CM.Channels{i}==CM.ERF_channel);
     CM.Channels{i} = remapChannelName(CM.Channels{i},new_names{i});
-    if reset_FITC, CM.FITC_channel = CM.Channels{i}; end
+    if reset_ERF, CM.ERF_channel = CM.Channels{i}; end
 end

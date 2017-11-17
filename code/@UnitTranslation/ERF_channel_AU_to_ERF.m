@@ -6,6 +6,6 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
     
-function ERF = FITC_to_ERF(UT, data)
-  % Converts FITC arbitrary units into standard ERF units
+function ERF = ERF_channel_AU_to_ERF(UT, data)
+  % Converts ERF channel arbitrary units into standard ERF units
   ERF = UT.k_ERF * data;

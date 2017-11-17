@@ -11,12 +11,12 @@ function [ok CM] = confirm_ERF_translations(CM)
 
     scales = getScales(CM.color_translation_model);
     ok = true;
-    fi = indexof(CM.Channels,CM.FITC_channel);
+    fi = indexof(CM.Channels,CM.ERF_channel);
     for i=1:numel(CM.Channels)
         if(i==fi) continue; end;
         if(isnan(scales(i,fi))), 
             ok = false;
-            warning('Model:Color','No pairwise translation for %s to %s; using pseudoERF',getPrintName(CM.Channels{i}),getPrintName(CM.FITC_channel));
+            warning('Model:Color','No pairwise translation for %s to %s; using pseudoERF',getPrintName(CM.Channels{i}),getPrintName(CM.ERF_channel));
             scales(i,fi) = 1;
             CM.Channels{i} = setIsPseudo(CM.Channels{i},1);
             
@@ -27,9 +27,9 @@ function [ok CM] = confirm_ERF_translations(CM)
         end
     end
     
-    % if FITC channel is pseudo (e.g., becaus of missing beads), then make all channels pseudo
-    if(isPseudo(CM.FITC_channel)),
-        warning('Model:Color','FITC channel is pseudo, so all other channels are pseudo as well');
+    % if ERF channel is pseudo (e.g., becaus of missing beads), then make all channels pseudo
+    if(isPseudo(CM.ERF_channel)),
+        warning('Model:Color','ERF channel is pseudo, so all other channels are pseudo as well');
         for i=1:numel(CM.Channels),
             CM.Channels{i} = setIsPseudo(CM.Channels{i},1);
         end

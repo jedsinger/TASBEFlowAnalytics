@@ -1,6 +1,6 @@
 function UT = beads_to_ERF_model(CM, settings, beadfile, makePlots, path)
 % BEADS_TO_ERF_MODEL: Computes a linear function for transforming FACS 
-% measurements on the FITC channel into ERFs, using a calibration run of
+% measurements on the ERF channel into ERFs, using a calibration run of
 % RCP-30-5A.
 % 
 % Takes the name of the FACS file of bead measurements, plus optionally the
@@ -8,7 +8,7 @@ function UT = beads_to_ERF_model(CM, settings, beadfile, makePlots, path)
 % record the calibration plot.
 %
 % Returns:
-% * k_ERF:  ERF = k_ERF * FITC
+% * k_ERF:  ERF = k_ERF * ERF_channel_AU
 % * first_peak: what is the first peak visible?
 % * fit_error: residual from the linear fit
 
@@ -20,7 +20,7 @@ function UT = beads_to_ERF_model(CM, settings, beadfile, makePlots, path)
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-FITC_channel = CM.FITC_channel;
+ERF_channel = CM.ERF_channel;
 if (nargin < 4)
     makePlots = CM.bead_plot;
 end
@@ -37,12 +37,12 @@ peak_threshold = CM.bead_peak_threshold;
 bin_min = CM.bead_min;
 bin_max = CM.bead_max;
 
-nameFC=getName(FITC_channel);
-i_FITC = find(CM,FITC_channel);
+nameFC=getName(ERF_channel);
+i_ERF = find(CM,ERF_channel);
 
 % SpheroTech RCP-30-5A beads (8 peaks) - only 7 are used here, since the
 % first is not given a ERF value in the tech notes
-% fprintf('Matching to FITC values for %s beads\n', CM.bead_model);
+% fprintf('Matching to ERF values for %s beads\n', CM.bead_model);
 % fprintf('Assuming Lot AA01, AA02, AA03, AA04, AB01, AB02, AC01, or GAA01-R\n');
 % PeakERFs = [692 2192 6028 17493 35674 126907 290983];
 %PeakRelative = [77.13 108.17 135.42 164.11 183.31 217.49 239.84];
@@ -62,7 +62,7 @@ bin_edges = 10.^(bin_min:bin_increment:bin_max);
 n = (size(bin_edges,2)-1);
 bin_centers = bin_edges(1:n)*10.^(bin_increment/2);
 
-% option of segmenting FITC on a separate secondary channel
+% option of segmenting ERF on a separate secondary channel
 segment_secondary = hasSetting(settings,'SecondaryBeadChannel');
 if segment_secondary
     segmentName = getSetting(settings,'SecondaryBeadChannel');
@@ -93,7 +93,7 @@ for i=1:range_n
 end
 
 n_peaks = 0;
-segment_peak_means = []; % segmentation channel (normally FITC)
+segment_peak_means = []; % segmentation channel (normally ERF channel)
 peak_means = [];
 peak_counts = [];
 if (isempty(peak_threshold)),
@@ -109,12 +109,12 @@ end
 in_peak = 0;
 for i=1:n
     if in_peak==0 % outside a peak: look for start
-        if(bin_counts(i) >= peak_threshold(i_FITC))
+        if(bin_counts(i) >= peak_threshold(i_ERF))
             peak_min = bin_edges(i);
             in_peak=1;
         end
     else % inside a peak: look for end
-        if(bin_counts(i) < peak_threshold(i_FITC))
+        if(bin_counts(i) < peak_threshold(i_ERF))
             peak_max = bin_edges(i);
             in_peak=0;
             % compute peak statistics
@@ -167,7 +167,7 @@ for i=1:numel(CM.Channels),
     end
     peak_sets{i} = alt_peak_means;
 
-    % Make plots for all peaks, not just FITC
+    % Make plots for all peaks, not just ERF
     if makePlots >= 2
         graph_max = max(alt_range_bin_counts);
         h = figure('PaperPosition',[1 1 5 3.66]);
@@ -251,8 +251,8 @@ if makePlots
     text(10.^(bin_min),graph_max/2,'peak search min value','Rotation',90,'FontSize',7,'VerticalAlignment','top','FontAngle','italic');
     plot(10.^[bin_max bin_max],[0 graph_max],'k:');
     text(10.^(bin_max),graph_max/2,'peak search max value','Rotation',90,'FontSize',7,'VerticalAlignment','bottom','FontAngle','italic');
-    plot(10.^[0 range_max],[peak_threshold(i_FITC) peak_threshold(i_FITC)],'k:');
-    text(1,peak_threshold(i_FITC),'clutter threshold','FontSize',7,'HorizontalAlignment','left','VerticalAlignment','bottom','FontAngle','italic');
+    plot(10.^[0 range_max],[peak_threshold(i_ERF) peak_threshold(i_ERF)],'k:');
+    text(1,peak_threshold(i_ERF),'clutter threshold','FontSize',7,'HorizontalAlignment','left','VerticalAlignment','bottom','FontAngle','italic');
     title(sprintf('Peak identification for %s beads', CM.bead_model));
     xlim(10.^[0 range_max]);
     ylabel('Beads');
@@ -285,7 +285,7 @@ end
 
 % Plog 2D fit
 if makePlots
-    % plot FITC linearly, since we wouldn't be using a secondary if the values weren't very low
+    % plot ERF linearly, since we wouldn't be using a secondary if the values weren't very low
     % there is probably much negative data
     if segment_secondary
         h = figure('PaperPosition',[1 1 5 3.66]);
