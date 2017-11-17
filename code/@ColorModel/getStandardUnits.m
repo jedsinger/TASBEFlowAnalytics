@@ -1,4 +1,4 @@
-% Copyright (C) 2010-2017, Raytheon BBN Technologies and contributors listed
+% Copyright (C) 2010-2017, Raytheon BBN Technologies and contributors listed 
 % in the AUTHORS file in TASBE analytics package distribution's top directory.
 %
 % This file is part of the TASBE analytics package, and is distributed
@@ -6,5 +6,8 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function y=getMeanMEFL(AFM)
-    y=AFM.af_mean_MEFL;
+function units = getStandardUnits( CM )
+units = CM.standardUnits;  % The value from column E in BeadCatalog
+
+end
+

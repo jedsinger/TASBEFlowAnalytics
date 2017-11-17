@@ -25,7 +25,7 @@ for i=1:n_conditions
     for j = 1:numberOfPerInducerFiles
         fileName = perInducerFiles{j};
         % Read data and extract statistics
-        data = readfcs_compensated_MEFL(colorModel,fileName, getUseAutoFluorescence(analysisParams), true);
+        data = readfcs_compensated_ERF(colorModel,fileName, getUseAutoFluorescence(analysisParams), true);
         
         sampleresults{i}{j} = compute_sample_statistics(colorModel,experiment,fileName,analysisParams,data);
     end

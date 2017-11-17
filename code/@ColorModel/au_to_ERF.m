@@ -6,13 +6,13 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 %
-% translates arbitrary units of a particular channel to MEFL
+% translates arbitrary units of a particular channel to ERF
 
-function data = au_to_MEFL(CM,channel,audata)
-    FITCdata = zeros(size(audata));
+function data = au_to_ERF(CM,channel,audata)
+    ERF_channel_AU_data = zeros(size(audata));
     for i=1:numel(CM.Channels)
-        FITCdata = translate(CM.color_translation_model,audata,channel,CM.FITC_channel);
+        ERF_channel_AU_data = translate(CM.color_translation_model,audata,channel,CM.ERF_channel);
     end
-    % Translate FITC AU to MEFLs
-    k_MEFL= getK_MEFL(CM.unit_translation);
-    data = FITCdata*k_MEFL;
+    % Translate ERF channel AU to ERFs
+    k_ERF= getK_ERF(CM.unit_translation);
+    data = ERF_channel_AU_data*k_ERF;

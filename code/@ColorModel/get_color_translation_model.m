@@ -7,5 +7,5 @@
 % package distribution's top directory.
 
 function y=get_color_translation_model(CM)
-  y = CM.color_translation_model; % For converting and channel to FITC equiv
+  y = CM.color_translation_model; % For converting other channels to ERF channel AU equiv
   

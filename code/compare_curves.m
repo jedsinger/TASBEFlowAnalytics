@@ -33,5 +33,5 @@ loglog(in2(two_only),out2(two_only),'k.');
 for i=1:numel(both)
     loglog([in1(both(i)) in2(both(i))],[out1(both(i)) out2(both(i))],'r-'); hold on;
 end
-xlabel('Input MEFL'); ylabel('Output MEFL');
-warn('Not checking for pseudoMEFL');
+xlabel('Input ERF'); ylabel('Output ERF');
+warn('Not checking for pseudoERF');
