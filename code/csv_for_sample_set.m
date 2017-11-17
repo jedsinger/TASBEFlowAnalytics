@@ -21,7 +21,7 @@ channels = getChannelNames(AP);
 fprintf(f,'Sample Name');
 for i=1:numel(channels), fprintf(f,',%s,,',channels{i}); end
 fprintf(f,'\n');
-for i=1:numel(channels), fprintf(f,',Count,Mean (log10 MEFL),S.D. of Events (fold)'); end
+for i=1:numel(channels), fprintf(f,',Count,Mean (log10 ERF),S.D. of Events (fold)'); end
 fprintf(f,'\n');
 
 for i=1:batch_size,

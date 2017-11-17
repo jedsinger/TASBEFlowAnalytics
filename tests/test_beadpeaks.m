@@ -22,8 +22,8 @@ channels{1} = setPrintName(channels{1}, 'mKate');
 channels{1} = setLineSpec(channels{1}, 'r');
 colorfiles{1} = [stem0312 'mkate_P3.fcs'];
 
-% Multi-color controls are used for converting other colors into MEFL units
-% Any channel without a control mapping it to MEFL will be left in arbirary units.
+% Multi-color controls are used for converting other colors into ERF units
+% Any channel without a control mapping it to ERF will be left in arbirary units.
 colorpairfiles = {};
 
 CM = ColorModel(beadfile, blankfile, channels, colorfiles, colorpairfiles);
@@ -52,7 +52,7 @@ CM=resolve(CM, settings);
 % Check results in CM:
 CMS = struct(CM);
 UT = struct(CMS.unit_translation);
-assertElementsAlmostEqual(UT.k_MEFL,        64.5559,  'relative', 1e-2);
+assertElementsAlmostEqual(UT.k_ERF,        64.5559,  'relative', 1e-2);
 assertElementsAlmostEqual(UT.first_peak,    7);
 assertElementsAlmostEqual(UT.fit_error,     0.00,   'absolute', 0.002);
 assertElementsAlmostEqual(UT.peak_sets{1},  [855.4849 2.4685e+03], 'relative', 1e-2);
@@ -71,7 +71,7 @@ CM=resolve(CM, settings);
 % Check results in CM:
 CMS = struct(CM);
 UT = struct(CMS.unit_translation);
-assertElementsAlmostEqual(UT.k_MEFL,        11.2510,  'relative', 1e-2);
+assertElementsAlmostEqual(UT.k_ERF,        11.2510,  'relative', 1e-2);
 assertElementsAlmostEqual(UT.first_peak,    2);
 assertElementsAlmostEqual(UT.fit_error,     0.4658,   'absolute', 0.002);
 expected_peaks = 1e3 .* [0.0104    0.0114    0.0123    0.0138    0.0175    0.0372    0.1095    0.2280    0.8523 1.3515    2.4685    3.8884];
@@ -89,7 +89,7 @@ CM=resolve(CM, settings);
 % Check results in CM:
 CMS = struct(CM);
 UT = struct(CMS.unit_translation);
-assertElementsAlmostEqual(UT.k_MEFL,        1);
+assertElementsAlmostEqual(UT.k_ERF,        1);
 assertElementsAlmostEqual(UT.first_peak,    NaN);
 assertTrue(isinf(UT.fit_error));
 assertTrue(isempty(UT.peak_sets{1}));

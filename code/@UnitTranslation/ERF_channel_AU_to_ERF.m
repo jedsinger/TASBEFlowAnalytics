@@ -6,6 +6,6 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
     
-function AFM=MEFLize(AFM,scale,k_MEFL)
-    AFM.af_mean_MEFL = AFM.af_mean*scale*k_MEFL;
-    AFM.af_std_MEFL = AFM.af_std*scale*k_MEFL;
+function ERF = ERF_channel_AU_to_ERF(UT, data)
+  % Converts ERF channel arbitrary units into standard ERF units
+  ERF = UT.k_ERF * data;

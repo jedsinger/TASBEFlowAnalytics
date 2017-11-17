@@ -5,7 +5,6 @@
 % under the terms of the GNU General Public License, with a linking
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
-    
-function MEFL = FITC_to_MEFL(UT, data)
-  % Converts FITC arbitrary units into standard MEFL units
-  MEFL = UT.k_MEFL * data;
+
+function y=getMeanERF(AFM)
+    y=AFM.af_mean_ERF;

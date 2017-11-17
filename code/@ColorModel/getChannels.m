@@ -7,5 +7,4 @@
 % package distribution's top directory.
 
 function y=getChannels(CM)
-  y = CM.Channels; % For converting and channel to FITC equiv
-  
+  y = CM.Channels;

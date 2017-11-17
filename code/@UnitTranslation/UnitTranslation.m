@@ -8,21 +8,21 @@
 
 % It is assumed that an array is used to associated this with channels
 %    beadtype    % string, right now always RCP-30-5A
-%    k_MEFL      % MEFL = k_MEFL*FITC
+%    k_ERF      % ERF = k_ERF*ERF_channel_AU
 %    first_peak  % what is the first RCP-30-5A peak visible?
 %    fit_error   % residual from the linear fit
 %    peak_sets   % all peaks from all channels, for logging and comparison
     
-function UT = UnitTranslation(beadtype, k_MEFL, first_peak, fit_error, peak_sets)
+function UT = UnitTranslation(beadtype, k_ERF, first_peak, fit_error, peak_sets)
   if nargin == 0
       UT.beadtype = '';
-      UT.k_MEFL = 0;
+      UT.k_ERF = 0;
       UT.first_peak = 0;
       UT.fit_error = 0;
       UT.peak_sets = {};
   elseif nargin == 5
       UT.beadtype = beadtype;
-      UT.k_MEFL = k_MEFL;
+      UT.k_ERF = k_ERF;
       UT.first_peak = first_peak;
       UT.fit_error = fit_error;
       UT.peak_sets = peak_sets;

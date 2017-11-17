@@ -75,7 +75,7 @@ barwitherr(stdplusminus,plusminus);
 set(gca,'XTickLabel',{dataset{:,1}});
 set(gca,'YSCale','log');
 ylim([ymin ymax]); xlim([0 n_conditions]+0.5);
-ylabel('Output MEFL');
+ylabel('Output ERF');
 title([OS.Description]);
 outputfig(h,[OS.StemName '-' OS.DeviceName '-' 'plusminus-bar'],OS.Directory);
 

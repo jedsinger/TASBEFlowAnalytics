@@ -6,14 +6,14 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function plasmids = estimate_plasmids(PEM,MEFLs)
-    plasmids = zeros(size(MEFLs));
+function plasmids = estimate_plasmids(PEM,ERFs)
+    plasmids = zeros(size(ERFs));
     %%%% WARNING: ESTIMATES EXPERIMENTAL AND UNTRUSTWORTHY
     %%%% DISABLE AND DEPRECATE
-%     for i=1:numel(MEFLs)
-%         if isnan(MEFLs(i)), plasmids(i) = NaN; continue; end;
+%     for i=1:numel(ERFs)
+%         if isnan(ERFs(i)), plasmids(i) = NaN; continue; end;
 %         binCenters = get_bin_centers(PEM.bins);
-%         idx = find(binCenters(1:end-1)<=MEFLs(i) & binCenters(2:end)>=MEFLs(i),1);
-%         ratio = log10(MEFLs(i)/binCenters(idx))/log10(get_bin_widths(PEM.bins));
+%         idx = find(binCenters(1:end-1)<=ERFs(i) & binCenters(2:end)>=ERFs(i),1);
+%         ratio = log10(ERFs(i)/binCenters(idx))/log10(get_bin_widths(PEM.bins));
 %         plasmids(i) = (1-ratio)*PEM.estimated_plasmids(idx) + ratio*PEM.estimated_plasmids(idx+1);
 %     end

@@ -9,7 +9,7 @@
 function sampleresults = compute_sample_statistics(colorModel,experiment,samplename,analysisParams,data)
 % Compute distribution structure of a data sample
 % This can be applied to either real data (from FCS files) or simulated data
-% data is an array of MEFL levels (events x channels), in colormodel order of channels
+% data is an array of ERF levels (events x channels), in colormodel order of channels
 
 n_components = getNumGaussianComponents(analysisParams);
 n_channels = numel(getChannels(colorModel));
@@ -40,7 +40,7 @@ popcstds = zeros(n_components,n_channels);
 popcweights = zeros(n_components,n_channels);
 for k=1:n_channels
     % compute channel-specific drop threshold:
-    drop_threshold = au_to_MEFL(colorModel,getChannel(colorModel,k),get_pem_drop_threshold(analysisParams));
+    drop_threshold = au_to_ERF(colorModel,getChannel(colorModel,k),get_pem_drop_threshold(analysisParams));
 
     % divide into included/excluded set
     pos = data(:,k)>drop_threshold;
@@ -58,7 +58,7 @@ for k=1:n_channels
     if k~=c_index, popcmeans(:,k) = NaN; popcstds(:,k) = NaN; popcweights(:,k) = NaN; continue; end;
     % find model fit:
     if numel(data),
-        tmp_PEM = PlasmidExpressionModel(data(:,k),CFP_af,CFP_noise,getMEFLPerPlasmid(analysisParams),drop_threshold,n_components);
+        tmp_PEM = PlasmidExpressionModel(data(:,k),CFP_af,CFP_noise,getERFPerPlasmid(analysisParams),drop_threshold,n_components);
         dist = get_fp_dist(tmp_PEM);
         if ~isempty(dist)
             sortable = zeros(n_components,3);
