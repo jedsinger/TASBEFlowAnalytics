@@ -1,4 +1,4 @@
-% Copyright (C) 2010-2017, Raytheon BBN Technologies and contributors listed 
+% Copyright (C) 2010-2017, Raytheon BBN Technologies and contributors listed
 % in the AUTHORS file in TASBE analytics package distribution's top directory.
 %
 % This file is part of the TASBE analytics package, and is distributed
@@ -6,5 +6,5 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function y=getChannels(CM)
-  y = CM.Channels;
+function y=getK_ERF(UT)
+    y=UT.k_ERF;

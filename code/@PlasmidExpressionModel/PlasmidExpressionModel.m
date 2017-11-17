@@ -6,7 +6,7 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-% PlasmidExpressionModel is the class that maps MEFLs to constitutive
+% PlasmidExpressionModel is the class that maps ERFs to constitutive
 % fluorescence to plasmid count
 
   
@@ -16,16 +16,16 @@
         %plasmid_mean            % max point of distribution
         %lower_gaussian_sigma    % gaussian std.dev. for CFP<mean 
         %upper_gaussian_sigma    % gaussian std.dev. for CFP>mean
-        % plasmid -> MEFL model
+        % plasmid -> ERF model
         %noise                   % std noise
-        %MEFL_per_plasmid
-        % MEFL -> plasmid function
-        %bins                    % MEFL bins
+        %ERF_per_plasmid
+        % ERF -> plasmid function
+        %bins                    % ERF bins
         %estimated_plasmids      % corresponding estimates per bin
 
         
 
- function PEM = PlasmidExpressionModel(cfp_data,CFP_af,CFP_noise,MEFL_per_plasmid,drop_threshold,n_components)
+ function PEM = PlasmidExpressionModel(cfp_data,CFP_af,CFP_noise,ERF_per_plasmid,drop_threshold,n_components)
         
         % init
         PEM.plot_pem = false;
@@ -42,11 +42,11 @@
         PEM.plasmid_mean = [];           % mean of plasmids for active cells
         PEM.plasmid_std = [];            % std.dev of plasmids for active cells
         PEM.fraction_active = [];        % corresponding portion active cells per bin
-        % plasmid -> MEFL model
+        % plasmid -> ERF model
         PEM.noise=[];                   % std noise
-        PEM.MEFL_per_plasmid=[];
-        % MEFL -> plasmid function
-        PEM.bins =BinSequence();                   % MEFL bins
+        PEM.ERF_per_plasmid=[];
+        % ERF -> plasmid function
+        PEM.bins =BinSequence();                   % ERF bins
         PEM.estimated_plasmids=[];      % corresponding estimates per bin
 
         if nargin > 0
@@ -54,7 +54,7 @@
             % default to two gaussian components of the model
             if nargin < 6, n_components = 2; end;
  
-            PEM.MEFL_per_plasmid = MEFL_per_plasmid;
+            PEM.ERF_per_plasmid = ERF_per_plasmid;
             PEM.noise = CFP_noise;
             PEM.bins = BinSequence(0,0.1,12,'log_bins');
             
@@ -67,7 +67,7 @@
             end
             
             % Seeded centers: [8], [5 8], [5 6.5 8], [5 6 7 8], ...
-            min_center =  log10(getMeanMEFL(CFP_af));
+            min_center =  log10(getMeanERF(CFP_af));
             if n_components == 1, 
                 initial_centers = 1;
             else
@@ -93,7 +93,7 @@
             
             % Transform from CFP to plasmids
             high_dist = find(PEM.fp_dist.mu == max(PEM.fp_dist.mu),1);
-            PEM.plasmid_mean = 10.^(PEM.fp_dist.mu(high_dist))/MEFL_per_plasmid;
+            PEM.plasmid_mean = 10.^(PEM.fp_dist.mu(high_dist))/ERF_per_plasmid;
             PEM.plasmid_std = 10.^sqrt(max(0,PEM.fp_dist.Sigma(high_dist)-log10(PEM.noise)^2)); % No square on fp_dist.Sigma since it's variance
             PEM.active_component = high_dist;
             PEM.inactive_component = find(PEM.fp_dist.mu ~= max(PEM.fp_dist.mu));

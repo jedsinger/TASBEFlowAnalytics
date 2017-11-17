@@ -7,4 +7,5 @@
 % package distribution's top directory.
 
 function model=get_compensation_model(CM)
-  model = CM.compensation_model; % conversion of FITC channel to MEFL
+  model = CM.compensation_model; % compensation of spectral overlap
+  

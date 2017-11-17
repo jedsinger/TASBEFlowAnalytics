@@ -81,10 +81,10 @@ function [scale CM] = compute_translation_scale(CM,data,i,j,ctrl,settings)
     which = find(counts(:)>CM.translation_channel_min_samples & means(:,i)>minbin_i & means(:,j)>minbin_j & means(:,i)<1e5 & means(:,j)<1e5); % ignore points without significant support or that are near saturation
     scale = means(which,i) \ means(which,j); % find ratio of j/i
     
-    % MEFLize channel if possible
+    % ERFize channel if possible
     AFMi = CM.autofluorescence_model{i};
-    k_MEFL=getK_MEFL(CM.unit_translation);
-    if(CM.Channels{j}==CM.FITC_channel), CM.autofluorescence_model{i}=MEFLize(AFMi,scale,k_MEFL); end
+    k_ERF=getK_ERF(CM.unit_translation);
+    if(CM.Channels{j}==CM.ERF_channel), CM.autofluorescence_model{i}=ERFize(AFMi,scale,k_ERF); end
 
     if CM.translation_plot
         plot_translation_graph(CM,data,i,j,settings,scale,means,stds,which);
@@ -131,10 +131,10 @@ function [scale CM] = compute_two_color_translation_scale(CM,data,i,j,settings)
     which = find(counts(:)>CM.translation_channel_min_samples & means(:,i)>minbin_i & means(:,j)>minbin_j & means(:,i)<1e5 & means(:,j)<1e5); % ignore points without significant support or that are near saturation
     scale = means(which,i) \ means(which,j); % find ratio of j/i
     
-    % MEFLize channel if possible
+    % ERFize channel if possible
     AFMi = CM.autofluorescence_model{i};
-    k_MEFL=getK_MEFL(CM.unit_translation);
-    if(CM.Channels{j}==CM.FITC_channel), CM.autofluorescence_model{i}=MEFLize(AFMi,scale,k_MEFL); end
+    k_ERF=getK_ERF(CM.unit_translation);
+    if(CM.Channels{j}==CM.ERF_channel), CM.autofluorescence_model{i}=ERFize(AFMi,scale,k_ERF); end
 
     if CM.translation_plot
         plot_translation_graph(CM,data,i,j,settings,scale,means,stds,which);

@@ -5,6 +5,7 @@
 % under the terms of the GNU General Public License, with a linking
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
-
-function y=getMEFLPerPlasmid(AP)
-    y=AP.MEFLPerPlasmid;
+    
+function AFM=ERFize(AFM,scale,k_ERF)
+    AFM.af_mean_ERF = AFM.af_mean*scale*k_ERF;
+    AFM.af_std_ERF = AFM.af_std*scale*k_ERF;

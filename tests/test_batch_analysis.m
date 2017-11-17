@@ -14,7 +14,7 @@ stem1011 = '../TASBEFlowAnalytics-Tutorial/example_assay/LacI-CAGop_';
 experimentName = 'LacI Transfer Curve';
 
 % Configure the analysis
-% Analyze on a histogram of 10^[first] to 10^[third] MEFL, with bins every 10^[second]
+% Analyze on a histogram of 10^[first] to 10^[third] ERF, with bins every 10^[second]
 bins = BinSequence(4,0.1,10,'log_bins');
 
 % Designate which channels have which roles
@@ -52,7 +52,7 @@ n_conditions = size(file_pairs,1);
 % Make output plots
 OS = OutputSettings('LacI-CAGop','','','/tmp/plots');
 OS.FixedInputAxis = [1e4 1e10];
-plot_batch_histograms(results,sampleresults,OS,{'b','y','r'});
+plot_batch_histograms(results,sampleresults,OS,{'b','y','r'},CM);
 
 save('/tmp/LacI-CAGop-batch.mat','AP','bins','file_pairs','OS','results','sampleresults');
 

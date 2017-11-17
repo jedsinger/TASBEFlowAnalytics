@@ -35,8 +35,8 @@ channels{3} = setPrintName(channels{3}, 'EBFP2');
 channels{3} = setLineSpec(channels{3}, 'b');
 colorfiles{3} = [stem0312 'ebfp2_P3.fcs'];
 
-% Multi-color controls are used for converting other colors into MEFL units
-% Any channel without a control mapping it to MEFL will be left in arbirary units.
+% Multi-color controls are used for converting other colors into ERF units
+% Any channel without a control mapping it to ERF will be left in arbirary units.
 colorpairfiles = {};
 % Entries are: channel1, channel2, constitutive channel, filename
 % This allows channel1 and channel2 to be converted into one another.
@@ -57,7 +57,7 @@ CM=set_bead_min(CM, 2);
 % The peak threshold determines the minumum count per bin for something to
 % be considered part of a peak.  Set if automated threshold finds too many or few peaks
 %CM=set_bead_peak_threshold(CM, 200);
-CM=set_FITC_channel_name(CM, 'FITC-A');
+CM=set_ERF_channel_name(CM, 'FITC-A');
 % Ignore channel data for ith channel if below 10^[value(i)]
 CM=set_translation_channel_min(CM,[2,2,2]);
 
@@ -75,7 +75,7 @@ CM=resolve(CM, settings);
 CMS = struct(CM);
 
 UT = struct(CMS.unit_translation);
-assertElementsAlmostEqual(UT.k_MEFL,        2267.3,   'relative', 1e-2);
+assertElementsAlmostEqual(UT.k_ERF,        2267.3,   'relative', 1e-2);
 assertElementsAlmostEqual(UT.first_peak,    8);
 assertElementsAlmostEqual(UT.fit_error,     0);
 assertElementsAlmostEqual(UT.peak_sets{1},  [128.35], 'relative', 1e-2);
@@ -122,8 +122,8 @@ channels{1} = setPrintName(channels{1}, 'mKate');
 channels{1} = setLineSpec(channels{1}, 'r');
 colorfiles{1} = [stem0312 'mkate_P3.fcs'];
 
-% Multi-color controls are used for converting other colors into MEFL units
-% Any channel without a control mapping it to MEFL will be left in arbirary units.
+% Multi-color controls are used for converting other colors into ERF units
+% Any channel without a control mapping it to ERF will be left in arbirary units.
 colorpairfiles = {};
 
 CM = ColorModel(beadfile, blankfile, channels, colorfiles, colorpairfiles);
@@ -138,7 +138,7 @@ CM=set_bead_min(CM, 1.8);
 % The peak threshold determines the minumum count per bin for something to
 % be considered part of a peak.  Set if automated threshold finds too many or few peaks
 CM=set_bead_peak_threshold(CM, 600);
-CM=set_FITC_channel_name(CM, 'PE-Tx-Red-YG-A');
+CM=set_ERF_channel_name(CM, 'PE-Tx-Red-YG-A');
 
 settings = TASBESettings();
 settings = setSetting(settings, 'path', '/tmp/plots');
@@ -152,7 +152,7 @@ save('-V7','/tmp/CM120312.mat','CM');
 CMS = struct(CM);
 
 UT = struct(CMS.unit_translation);
-assertElementsAlmostEqual(UT.k_MEFL,        59.9971,  'relative', 1e-2);
+assertElementsAlmostEqual(UT.k_ERF,        59.9971,  'relative', 1e-2);
 assertElementsAlmostEqual(UT.first_peak,    5);
 assertElementsAlmostEqual(UT.fit_error,     0.019232,   'absolute', 0.002);
 assertElementsAlmostEqual(UT.peak_sets{1},  [110.3949 227.5807 855.4849 2.4685e+03], 'relative', 1e-2);
@@ -182,8 +182,8 @@ channels{1} = Channel('PE-Tx-Red-YG-A', 561, 610, 20);
 channels{1} = setPrintName(channels{1}, 'mKate');
 channels{1} = setLineSpec(channels{1}, 'r');
 
-% Multi-color controls are used for converting other colors into MEFL units
-% Any channel without a control mapping it to MEFL will be left in arbirary units.
+% Multi-color controls are used for converting other colors into ERF units
+% Any channel without a control mapping it to ERF will be left in arbirary units.
 colorpairfiles = {};
 
 CM = ColorModel(beadfile, blankfile, channels, colorfiles, colorpairfiles);
@@ -198,7 +198,7 @@ CM=set_bead_min(CM, 1.8);
 % The peak threshold determines the minumum count per bin for something to
 % be considered part of a peak.  Set if automated threshold finds too many or few peaks
 CM=set_bead_peak_threshold(CM, 600);
-CM=set_FITC_channel_name(CM, 'PE-Tx-Red-YG-A');
+CM=set_ERF_channel_name(CM, 'PE-Tx-Red-YG-A');
 
 settings = TASBESettings();
 settings = setSetting(settings, 'path', '/tmp/plots');
@@ -212,7 +212,7 @@ save('-V7','/tmp/CM120312.mat','CM');
 CMS = struct(CM);
 
 UT = struct(CMS.unit_translation);
-assertElementsAlmostEqual(UT.k_MEFL,        59.9971,  'relative', 1e-2);
+assertElementsAlmostEqual(UT.k_ERF,        59.9971,  'relative', 1e-2);
 assertElementsAlmostEqual(UT.first_peak,    5);
 assertElementsAlmostEqual(UT.fit_error,     0.019232,   'absolute', 0.002);
 assertElementsAlmostEqual(UT.peak_sets{1},  [110.3949 227.5807 855.4849 2.4685e+03], 'relative', 1e-2);

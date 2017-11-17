@@ -28,15 +28,27 @@ end
     % build model
     % First, unit translation from beads
     if hasSetting(settings,'override_units')
-        k_MEFL = getSetting(settings,'override_units');
-        CM.unit_translation = UnitTranslation('Specified',k_MEFL,[],[],{});
-        warning('TASBE:ColorModel','Warning: overriding units with specified k_MEFL value of %d',k_MEFL);
+        k_ERF = getSetting(settings,'override_units');
+        CM.unit_translation = UnitTranslation('Specified',k_ERF,[],[],{});
+        warning('TASBE:ColorModel','Warning: overriding units with specified k_ERF value of %d',k_ERF);
     else
-        CM.unit_translation = beads_to_mefl_model(CM,settings,CM.BeadFile, 2, path);
+        CM.unit_translation = beads_to_ERF_model(CM,settings,CM.BeadFile, 2, path);
     end
     
     % Next, autofluorescence and compensation model
-    CM.autofluorescence_model = computeAutoFluorescence(CM,settings, path);
+    if hasSetting(settings,'override_autofluorescence')
+        afmean = getSetting(settings,'override_autofluorescence');
+        if numel(afmean)==1, afmean = afmean*ones(numel(CM.Channels),1); end;
+        warning('TASBE:ColorModel','Warning: overriding autofluorescence model with specified values.');
+        for i=1:numel(afmean),
+            CM.autofluorescence_model{i} = AutoFluorescenceModel(afmean(i)*ones(10,1));
+            if(CM.Channels{i} == CM.ERF_channel)
+                CM.autofluorescence_model{i}=ERFize(CM.autofluorescence_model{i},1,getK_ERF(CM.unit_translation));
+            end
+        end
+    else
+        CM.autofluorescence_model = computeAutoFluorescence(CM,settings,path);
+    end
     if hasSetting(settings,'override_compensation')
         matrix = getSetting(settings,'override_compensation');
         warning('TASBE:ColorModel','Warning: overriding compensation model with specified values.');
@@ -52,23 +64,23 @@ end
         scales = getSetting(settings,'override_translation');
         color_translation_model = ColorTranslationModel(CM.Channels,scales);
         for i=1:numel(CM.Channels),
-            if(CM.Channels{i}==CM.FITC_channel) i_fitc = i; end;
+            if(CM.Channels{i}==CM.ERF_channel) i_ERF = i; end;
         end
         for i=1:numel(CM.Channels),
-            if(CM.Channels{i}==CM.FITC_channel) continue; end;
+            if(CM.Channels{i}==CM.ERF_channel) continue; end;
             AFMi = CM.autofluorescence_model{i};
-            k_MEFL=getK_MEFL(CM.unit_translation);
-            CM.autofluorescence_model{i}=MEFLize(AFMi,scales(i,i_fitc),k_MEFL);
+            k_ERF=getK_ERF(CM.unit_translation);
+            CM.autofluorescence_model{i}=ERFize(AFMi,scales(i,i_ERF),k_ERF);
         end
         warning('TASBE:ColorModel','Warning: overriding translation scaling with specified values.');
     else
         [color_translation_model CM] = computeColorTranslations(CM, settings);
     end
     CM.color_translation_model = color_translation_model;
-    CM.initialized = 1; % enough to read in (pseudo)MEFL
+    CM.initialized = 1; % enough to read in (pseudo)ERF
     
-    %if ~confirm_MEFL_translations(CM), return; end;% if can't translate all to MEFL, then warn and stop here
-    [ok CM] = confirm_MEFL_translations(CM);% warn if can't translate all to MEFL
+    %if ~confirm_ERF_translations(CM), return; end;% if can't translate all to ERF, then warn and stop here
+    [ok CM] = confirm_ERF_translations(CM);% warn if can't translate all to ERF
     
     CM.noise_model = computeNoiseModel(CM,settings);
     

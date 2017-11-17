@@ -7,4 +7,4 @@
 % package distribution's top directory.
 
 function y=get_unit_translation(CM)
-  y = CM.unit_translation; % conversion of FITC channel to MEFL
+  y = CM.unit_translation; % conversion of ERF channel AU to ERF

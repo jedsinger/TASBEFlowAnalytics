@@ -6,13 +6,13 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function CM=set_FITC_channel_name(CM, v)
-    CM.FITC_channel_name=v;
+function CM=set_ERF_channel_name(CM, v)
+    CM.ERF_channel_name=v;
     found=false;
     for i=1:numel(CM.Channels), 
-        if(strcmp(CM.FITC_channel_name,getName(CM.Channels{i}))), 
-            CM.FITC_channel = CM.Channels{i}; found=true; break; 
+        if(strcmp(CM.ERF_channel_name,getName(CM.Channels{i}))), 
+            CM.ERF_channel = CM.Channels{i}; found=true; break; 
         end;
     end;
-    if(~found), error('Unable to find FITC channel %s',CM.FITC_channel_name); end;
+    if(~found), error('Unable to find ERF channel %s',CM.ERF_channel_name); end;
 

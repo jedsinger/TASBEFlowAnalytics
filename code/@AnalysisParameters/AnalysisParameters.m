@@ -8,9 +8,9 @@
 %
 % ANALYSISPARAMETERS Parameters that are necessary for analysis of experiment
 
-function AP = AnalysisParameters(bins, ChannelLabels, MEFLPerPlasmid)
+function AP = AnalysisParameters(bins, ChannelLabels, ERFPerPlasmid)
    AP.version = tasbe_version();
-   AP.MEFLPerPlasmid = 1000;                % default value 1000
+   AP.ERFPerPlasmid = 1000;                % default value 1000
    AP.use_autofluorescence = false;         % if false, try to remove autofluorescence from results
    AP.min_valid_count = 100;                % minimum number of cells per bin to be allowed
    AP.min_fraction_active = 0.9;            % minimum fraction active to be considered valid in a bin
@@ -25,7 +25,7 @@ function AP = AnalysisParameters(bins, ChannelLabels, MEFLPerPlasmid)
        AP.ChannelLabels = ChannelLabels;        % e.g. {'constitutive', bluechannel; 'input', redchannel}
    end
    
-   if nargin > 2, AP.MEFLPerPlasmid = MEFLPerPlasmid; end
+   if nargin > 2, AP.ERFPerPlasmid = ERFPerPlasmid; end
    AP=class(AP,'AnalysisParameters');
 
 

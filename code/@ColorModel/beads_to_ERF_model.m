@@ -1,6 +1,6 @@
-function UT = beads_to_mefl_model(CM, settings, beadfile, makePlots, path)
-% BEADS_TO_MEFL_MODEL: Computes a linear function for transforming FACS 
-% measurements on the FITC channel into MEFLs, using a calibration run of
+function UT = beads_to_ERF_model(CM, settings, beadfile, makePlots, path)
+% BEADS_TO_ERF_MODEL: Computes a linear function for transforming FACS 
+% measurements on the ERF channel into ERFs, using a calibration run of
 % RCP-30-5A.
 % 
 % Takes the name of the FACS file of bead measurements, plus optionally the
@@ -8,7 +8,7 @@ function UT = beads_to_mefl_model(CM, settings, beadfile, makePlots, path)
 % record the calibration plot.
 %
 % Returns:
-% * k_MEFL:  MEFL = k_MEFL * FITC
+% * k_ERF:  ERF = k_ERF * ERF_channel_AU
 % * first_peak: what is the first peak visible?
 % * fit_error: residual from the linear fit
 
@@ -20,7 +20,7 @@ function UT = beads_to_mefl_model(CM, settings, beadfile, makePlots, path)
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-FITC_channel = CM.FITC_channel;
+ERF_channel = CM.ERF_channel;
 if (nargin < 4)
     makePlots = CM.bead_plot;
 end
@@ -37,25 +37,24 @@ peak_threshold = CM.bead_peak_threshold;
 bin_min = CM.bead_min;
 bin_max = CM.bead_max;
 
-nameFC=getName(FITC_channel);
-i_FITC = find(CM,FITC_channel);
+nameFC=getName(ERF_channel);
+i_ERF = find(CM,ERF_channel);
 
 % SpheroTech RCP-30-5A beads (8 peaks) - only 7 are used here, since the
-% first is not given a MEFL value in the tech notes
-% fprintf('Matching to FITC values for SpheroTech RCP-30-5A beads\n');
+% first is not given a ERF value in the tech notes
+% fprintf('Matching to ERF values for %s beads\n', CM.bead_model);
 % fprintf('Assuming Lot AA01, AA02, AA03, AA04, AB01, AB02, AC01, or GAA01-R\n');
-% PeakMEFLs = [692 2192 6028 17493 35674 126907 290983];
+% PeakERFs = [692 2192 6028 17493 35674 126907 290983];
 %PeakRelative = [77.13 108.17 135.42 164.11 183.31 217.49 239.84];
 %warning('Substituting a different RCP set');
-%PeakMEFLs = [791	2083	6562	16531	47575	136680	271771];
+%PeakERFs = [791	2083	6562	16531	47575	136680	271771];
 
-PeakMEFLs = get_bead_peaks(CM.bead_model,CM.bead_channel,CM.bead_batch);
-if(numel(PeakMEFLs>7))
-    PeakMEFLs = PeakMEFLs((end-6):end);
-else if(PeakMEFLs<7)
-        error('Cannot use beads with less than 7 peaks');
-    end
-end
+[PeakERFs,units,actualBatch] = get_bead_peaks(CM.bead_model,CM.bead_channel,CM.bead_batch);
+CM.standardUnits = units;
+
+totalNumPeaks = numel(PeakERFs);
+numQuantifiedPeaks = sum(~isnan(PeakERFs));
+quantifiedPeakERFs = PeakERFs((end-numQuantifiedPeaks+1):end);
 
 % identify peaks
 bin_increment = 0.02;
@@ -63,7 +62,7 @@ bin_edges = 10.^(bin_min:bin_increment:bin_max);
 n = (size(bin_edges,2)-1);
 bin_centers = bin_edges(1:n)*10.^(bin_increment/2);
 
-% option of segmenting FITC on a separate secondary channel
+% option of segmenting ERF on a separate secondary channel
 segment_secondary = hasSetting(settings,'SecondaryBeadChannel');
 if segment_secondary
     segmentName = getSetting(settings,'SecondaryBeadChannel');
@@ -94,7 +93,7 @@ for i=1:range_n
 end
 
 n_peaks = 0;
-segment_peak_means = []; % segmentation channel (normally FITC)
+segment_peak_means = []; % segmentation channel (normally ERF channel)
 peak_means = [];
 peak_counts = [];
 if (isempty(peak_threshold)),
@@ -110,12 +109,12 @@ end
 in_peak = 0;
 for i=1:n
     if in_peak==0 % outside a peak: look for start
-        if(bin_counts(i) >= peak_threshold(i_FITC))
+        if(bin_counts(i) >= peak_threshold(i_ERF))
             peak_min = bin_edges(i);
             in_peak=1;
         end
     else % inside a peak: look for end
-        if(bin_counts(i) < peak_threshold(i_FITC))
+        if(bin_counts(i) < peak_threshold(i_ERF))
             peak_max = bin_edges(i);
             in_peak=0;
             % compute peak statistics
@@ -168,7 +167,7 @@ for i=1:numel(CM.Channels),
     end
     peak_sets{i} = alt_peak_means;
 
-    % Make plots for all peaks, not just FITC
+    % Make plots for all peaks, not just ERF
     if makePlots >= 2
         graph_max = max(alt_range_bin_counts);
         h = figure('PaperPosition',[1 1 5 3.66]);
@@ -182,19 +181,19 @@ for i=1:numel(CM.Channels),
         text(10.^(bin_min),graph_max/2,'peak search min value','Rotation',90,'FontSize',7,'VerticalAlignment','top','FontAngle','italic');
         plot(10.^[bin_max bin_max],[0 graph_max],'k:');
         text(10.^(bin_max),graph_max/2,'peak search max value','Rotation',90,'FontSize',7,'VerticalAlignment','bottom','FontAngle','italic');
-        xlabel(sprintf('FACS a.u. for %s channel',getPrintName(CM.Channels{i}))); ylabel('Beads');
-        title(sprintf('Peak identification for %s for SPHERO RCP-30-5A beads',getPrintName(CM.Channels{i})));
+        xlabel(sprintf('a.u. for %s channel',getPrintName(CM.Channels{i}))); ylabel('Beads');
+        title(sprintf('Peak identification for %s for %s beads',getPrintName(CM.Channels{i}), CM.bead_model));
         outputfig(h, sprintf('bead-calibration-%s',getPrintName(CM.Channels{i})),path);
     end
 end
 
-% look for the best linear fit of log10(peak_means) vs. log10(PeakMEFLs)
-if(n_peaks>7)
+% look for the best linear fit of log10(peak_means) vs. log10(PeakERFs)
+if(n_peaks>numQuantifiedPeaks)
     warning('Bead calibration found unexpectedly many bead peaks: truncating to use top peaks only');
-    n_peaks = 7;
-    segment_peak_means = segment_peak_means((end-6):end);
-    peak_means = peak_means((end-6):end);
-    peak_counts = peak_counts((end-6):end);
+    n_peaks = numQuantifiedPeaks;
+    segment_peak_means = segment_peak_means((end-numQuantifiedPeaks+1):end);
+    peak_means = peak_means((end-numQuantifiedPeaks+1):end);
+    peak_counts = peak_counts((end-numQuantifiedPeaks+1):end);
 end
 
 % Use log scale for fitting to avoid distortions from highest point
@@ -203,35 +202,35 @@ if(n_peaks>=2)
     first_peak = 0;
     if(n_peaks>2)
         best_i = -1;
-        for i=0:(7-n_peaks),
-          [poly,S] = polyfit(log10(peak_means),log10(PeakMEFLs((1:n_peaks)+i)),1);
+        for i=0:(numQuantifiedPeaks-n_peaks),
+          [poly,S] = polyfit(log10(peak_means),log10(quantifiedPeakERFs((1:n_peaks)+i)),1);
           if S.normr <= fit_error, fit_error = S.normr; model = poly; first_peak=i+2; best_i = i; end;
         end
         % Warn if setting to anything less than the top peak, since top peak should usually be visible
-        fprintf('Bead peaks identified as %i to %i of 8\n',first_peak,first_peak+n_peaks-1);
-        if best_i < (7-n_peaks) && n_peaks < 5,
+        fprintf('Bead peaks identified as %i to %i of %i\n',first_peak,first_peak+n_peaks-1,totalNumPeaks);
+        if best_i < (numQuantifiedPeaks-n_peaks) && n_peaks < 5,
             warning('TASBE:Beads','Few bead peaks and fit does not include highest: error likely');
         end
     else % 2 peaks
         warning('TASBE:Beads','Only two bead peaks found, assuming brightest two');
-        [poly,S] = polyfit(log10(peak_means),log10(PeakMEFLs(6:7)),1);
-        fit_error = S.normr; model = poly; first_peak = numel(PeakMEFLs)-1+1; % 7 vs 8 kludge
+        [poly,S] = polyfit(log10(peak_means),log10(quantifiedPeakERFs(end-1:end)),1);
+        fit_error = S.normr; model = poly; first_peak = numQuantifiedPeaks;
     end
     if ~isempty(force_peak), first_peak = force_peak; end
-    constrained_fit = mean(log10(PeakMEFLs((1:n_peaks)+first_peak-2)) - log10(peak_means));
-    cf_error = mean(10.^abs(log10((PeakMEFLs((1:n_peaks)+first_peak-2)./peak_means) / 10.^constrained_fit)));
+    constrained_fit = mean(log10(quantifiedPeakERFs((1:n_peaks)+first_peak-2)) - log10(peak_means));
+    cf_error = mean(10.^abs(log10((quantifiedPeakERFs((1:n_peaks)+first_peak-2)./peak_means) / 10.^constrained_fit)));
     % Final fit_error should be close to zero / 1-fold
     if(cf_error>1.05), warning('TASBE:Beads','Bead calibration may be incorrect: fit more than 5 percent off: error = %.2d',cf_error); end;
     %if(abs(model(1)-1)>0.05), warning('TASBE:Beads','Bead calibration probably incorrect: fit more than 5 percent off: slope = %.2d',model(1)); end;
-    k_MEFL = 10^constrained_fit;
+    k_ERF = 10^constrained_fit;
 elseif(n_peaks==1) % 1 peak
     warning('TASBE:Beads','Only one bead peak found, assuming brightest');
-    fit_error = 0; first_peak = numel(PeakMEFLs)+1; % 7 vs. 8 kludge
+    fit_error = 0; first_peak = totalNumPeaks;
     if ~isempty(force_peak), first_peak = force_peak; end
-    k_MEFL = PeakMEFLs(first_peak-1)/peak_means; % 7 vs. 8 kludge
+    k_ERF = PeakERFs(first_peak)/peak_means;
 else % n_peaks = 0
     warning('Bead calibration failed: found no bead peaks; using single dummy peak');
-    k_MEFL = 1;
+    k_ERF = 1;
     fit_error = Inf;
     first_peak = NaN;
 end;
@@ -252,15 +251,16 @@ if makePlots
     text(10.^(bin_min),graph_max/2,'peak search min value','Rotation',90,'FontSize',7,'VerticalAlignment','top','FontAngle','italic');
     plot(10.^[bin_max bin_max],[0 graph_max],'k:');
     text(10.^(bin_max),graph_max/2,'peak search max value','Rotation',90,'FontSize',7,'VerticalAlignment','bottom','FontAngle','italic');
-    plot(10.^[0 range_max],[peak_threshold(i_FITC) peak_threshold(i_FITC)],'k:');
-    text(1,peak_threshold(i_FITC),'clutter threshold','FontSize',7,'HorizontalAlignment','left','VerticalAlignment','bottom','FontAngle','italic');
-    title('Peak identification for SPHERO RCP-30-5A beads');
+    plot(10.^[0 range_max],[peak_threshold(i_ERF) peak_threshold(i_ERF)],'k:');
+    text(1,peak_threshold(i_ERF),'clutter threshold','FontSize',7,'HorizontalAlignment','left','VerticalAlignment','bottom','FontAngle','italic');
+    title(sprintf('Peak identification for %s beads', CM.bead_model));
     xlim(10.^[0 range_max]);
+    ylabel('Beads');
     if segment_secondary
-        xlabel(['FACS ' segmentName ' units']); ylabel('Beads');
+        xlabel([segmentName ' a.u.']); 
         outputfig(h,'bead-calibration-secondary',path);
     else
-        xlabel('FACS FITC units'); ylabel('Beads');
+        xlabel([CM.bead_channel ' a.u.']); 
         outputfig(h,'bead-calibration',path);
     end
 end
@@ -270,15 +270,14 @@ end
 if makePlots>1
     h = figure('PaperPosition',[1 1 5 3.66]);
     set(h,'visible','off');
-    % TODO: Should be first_peak-1, but we currently assum 7 PeakMEFLs for an 8-peak file
-    loglog(peak_means,PeakMEFLs((1:n_peaks)+first_peak-2),'b*-'); hold on;
+    loglog(peak_means,quantifiedPeakERFs((1:n_peaks)+first_peak-2),'b*-'); hold on;
     %loglog([1 peak_means],[1 peak_means]*(10.^model(2)),'r+--');
-    loglog([1 peak_means],[1 peak_means]*k_MEFL,'go--');
+    loglog([1 peak_means],[1 peak_means]*k_ERF,'go--');
     for i=1:n_peaks
-        text(peak_means(i),PeakMEFLs(i+first_peak-2)*1.3,sprintf('%i',i+first_peak-1));
+        text(peak_means(i),quantifiedPeakERFs(i+first_peak-2)*1.3,sprintf('%i',i+first_peak-1));
     end
-    xlabel('FACS FITC units'); ylabel('Beads MEFLs');
-    title('Peak identification for SPHERO RCP-30-5A beads');
+    xlabel([CM.bead_channel ' a.u.']); ylabel('Beads ERFs');
+    title(sprintf('Peak identification for %s beads', CM.bead_model));
     %legend('Location','NorthWest','Observed','Linear Fit','Constrained Fit');
     legend('Observed','Constrained Fit','Location','NorthWest');
     outputfig(h,'bead-fit-curve',path);
@@ -286,7 +285,7 @@ end
 
 % Plog 2D fit
 if makePlots
-    % plot FITC linearly, since we wouldn't be using a secondary if the values weren't very low
+    % plot ERF linearly, since we wouldn't be using a secondary if the values weren't very low
     % there is probably much negative data
     if segment_secondary
         h = figure('PaperPosition',[1 1 5 3.66]);
@@ -301,13 +300,13 @@ if makePlots
             semilogy(peak_means(i),log10(segment_peak_means(i)),'k+');
             text(peak_means(i),log10(segment_peak_means(i))+0.1,sprintf('%i',i+first_peak-1));
         end
-        xlabel('FACS FITC units'); ylabel(['FACS ' segmentName ' units']);
-        title('Peak identification for SPHERO RCP-30-5A beads');
+        xlabel([CM.bead_channel ' a.u.']); ylabel([segmentName ' a.u.']);
+        title(sprintf('Peak identification for %s beads', CM.bead_model));
         outputfig(h,'bead-calibration',path);
     end
 end
 
-UT = UnitTranslation([CM.bead_model ':' CM.bead_channel ':' CM.bead_batch],k_MEFL, first_peak, fit_error, peak_sets);
+UT = UnitTranslation([CM.bead_model ':' CM.bead_channel ':' CM.bead_batch],k_ERF, first_peak, fit_error, peak_sets);
 
 end
 

@@ -8,7 +8,7 @@
 
 function units = getUnits(C)
     if isPseudo(C)
-        units = 'pseudoMEFL';
+        units = 'pseudoERF';
     else
-        units = 'MEFL';
+        units = 'ERF';
     end

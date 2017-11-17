@@ -6,7 +6,7 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function plot_batch_histograms(results,sampleresults,outputsettings,linespecs)
+function plot_batch_histograms(results,sampleresults,outputsettings,linespecs,CM)
 
 n_conditions = numel(sampleresults);
 n_colors = numel(linespecs);
@@ -33,7 +33,7 @@ for i=1:n_conditions
             loglog([results{i}.means(k) results{i}.means(k)],[1 maxcount],[linespecs{k} '--']); hold on;
         end
     end
-    xlabel('CFP MEFL'); ylabel('Count');
+    xlabel(getStandardUnits(CM)); ylabel('Count');
     ylim([1e0 10.^(ceil(log10(maxcount)))]);
     if(outputsettings.FixedInputAxis), xlim(outputsettings.FixedInputAxis); end;
     %ylim([0 maxcount*1.1]);
