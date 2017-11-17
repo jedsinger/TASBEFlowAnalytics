@@ -16,7 +16,7 @@ if nargin<4 channels = 1:n_channels; end;
 AF = zeros(n_samples,numel(channels));
 for i=1:numel(channels),
     AFM = get_autofluorescence_model(CM,channels(i));
-    AF(:,i) = getMeanMEFL(AFM) + getStdMEFL(AFM)*randn(n_samples,1);
+    AF(:,i) = getMeanERF(AFM) + getStdERF(AFM)*randn(n_samples,1);
 end
 
 if truncate

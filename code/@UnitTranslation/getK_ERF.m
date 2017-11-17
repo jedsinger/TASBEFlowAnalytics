@@ -5,7 +5,6 @@
 % under the terms of the GNU General Public License, with a linking
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
-    
-function AFM=MEFLize(AFM,scale,k_MEFL)
-    AFM.af_mean_MEFL = AFM.af_mean*scale*k_MEFL;
-    AFM.af_std_MEFL = AFM.af_std*scale*k_MEFL;
+
+function y=getK_ERF(UT)
+    y=UT.k_ERF;

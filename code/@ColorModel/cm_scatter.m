@@ -1,4 +1,4 @@
-function [data figh] = cm_scatter(CM,filename,xcolor,ycolor,MEFL,density,range,visible,largeoutliers)
+function [data figh] = cm_scatter(CM,filename,xcolor,ycolor,ERF,density,range,visible,largeoutliers)
 % FCS_SCATTER(filename,xcolor,ycolor,density,range,visible): 
 %   Plot a log-log scatter graph of positive points in FCS file
 %   Defaults to non-visible, density 10, range = []
@@ -14,8 +14,8 @@ function [data figh] = cm_scatter(CM,filename,xcolor,ycolor,MEFL,density,range,v
 if nargin < 8, visible = false; end;
 if nargin < 9, largeoutliers = false; end;
 
-if MEFL,
-    data = readfcs_compensated_MEFL(CM,strtrim(filename),false,false);
+if ERF,
+    data = readfcs_compensated_ERF(CM,strtrim(filename),false,false);
 else
     data = readfcs_compensated_au(CM,strtrim(filename),false,false);
 end
@@ -39,7 +39,7 @@ else
     loglog(xc(pos),yc(pos),'.','MarkerSize',1);
     if (nargin >= 7 && ~isempty(range)), xlim(10.^range(:,1)); ylim(10.^(range(:,2))); end;
 end
-if MEFL
+if ERF
     xlabel(['log_{10} ' xcolor ' ' getUnits(xchan)]); ylabel(['log_{10} ' ycolor ' ' getUnits(ychan)]);
 else
     xlabel(['log_{10} ' xcolor ' a.u.']); ylabel(['log_{10} ' ycolor ' a.u.']);

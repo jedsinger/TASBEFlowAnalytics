@@ -11,7 +11,7 @@
 %%%%%%
 
 function [estimates PEM] = compute_plasmid_estimates(PEM)
-    MEFL_off = round(log10(PEM.MEFL_per_plasmid)/log10(get_bin_widths(PEM.bins)));
+    ERF_off = round(log10(PEM.ERF_per_plasmid)/log10(get_bin_widths(PEM.bins)));
 %    pdist = plasmid_distribution_model(PEM); % get underlying plasmid model
 
     logbin = log10(get_bin_widths(PEM.bins));
@@ -39,9 +39,9 @@ function [estimates PEM] = compute_plasmid_estimates(PEM)
             p_p_and_c = pdist(i)*offset_gaussian(j);
             E_frag = p_p_and_c*log10(bin_centers(i));
 
-            idx = (i+MEFL_off)+(j-1); % add with upward offset
+            idx = (i+ERF_off)+(j-1); % add with upward offset
             if(idx >= 1 && idx <= numel(E_p_and_c)), p_cfp(idx) = p_cfp(idx) + p_p_and_c; E_p_and_c(idx) = E_p_and_c(idx) + E_frag; end;
-            idx = (i+MEFL_off)-(j-1); % add with downward offset
+            idx = (i+ERF_off)-(j-1); % add with downward offset
             if(idx >= 1 && idx <= numel(E_p_and_c)), p_cfp(idx) = p_cfp(idx) + p_p_and_c; E_p_and_c(idx) = E_p_and_c(idx) + E_frag; end;
         end
     end

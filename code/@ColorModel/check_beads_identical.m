@@ -16,7 +16,7 @@ function [ok ratios] = check_beads_identical(CM, settings, file, tolerance)
 % package distribution's top directory.
 
 if nargin < 4, tolerance = 0.05; end; % 5 percent tolerance by default
-alt_units = beads_to_mefl_model(CM, settings, file);
+alt_units = beads_to_ERF_model(CM, settings, file);
 ok = true;
 ratios = zeros(size(CM.Channels));
 for i=1:numel(CM.Channels),

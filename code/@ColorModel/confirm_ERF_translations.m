@@ -1,5 +1,5 @@
-function [ok CM] = confirm_MEFL_translations(CM)
-% Checks to see that all channels can be translated to MEFL
+function [ok CM] = confirm_ERF_translations(CM)
+% Checks to see that all channels can be translated to ERF
 
 % Copyright (C) 2010-2017, Raytheon BBN Technologies and contributors listed 
 % in the AUTHORS file in TASBE analytics package distribution's top directory.
@@ -16,14 +16,14 @@ function [ok CM] = confirm_MEFL_translations(CM)
         if(i==fi) continue; end;
         if(isnan(scales(i,fi))), 
             ok = false;
-            warning('Model:Color','No pairwise translation for %s to %s; using pseudoMEFL',getPrintName(CM.Channels{i}),getPrintName(CM.FITC_channel));
+            warning('Model:Color','No pairwise translation for %s to %s; using pseudoERF',getPrintName(CM.Channels{i}),getPrintName(CM.FITC_channel));
             scales(i,fi) = 1;
             CM.Channels{i} = setIsPseudo(CM.Channels{i},1);
             
-            % pseudo-MEFLize channel
+            % pseudo-ERFize channel
             AFMi = CM.autofluorescence_model{i};
-            k_MEFL=getK_MEFL(CM.unit_translation);
-            CM.autofluorescence_model{i}=MEFLize(AFMi,scales(i,fi),k_MEFL);
+            k_ERF=getK_ERF(CM.unit_translation);
+            CM.autofluorescence_model{i}=ERFize(AFMi,scales(i,fi),k_ERF);
         end
     end
     
@@ -36,6 +36,6 @@ function [ok CM] = confirm_MEFL_translations(CM)
     end
     
     if ~ok,
-        warning('Model:Color','Not all channels can be translated to standard MEFL units.');
+        warning('Model:Color','Not all channels can be translated to standard ERF units.');
         CM.color_translation_model = setScales(CM.color_translation_model,scales);
     end

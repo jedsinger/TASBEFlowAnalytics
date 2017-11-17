@@ -6,5 +6,5 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function y=getStdMEFL(AFM)
-    y=AFM.af_std_MEFL;
+function y=getMeanERF(AFM)
+    y=AFM.af_mean_ERF;

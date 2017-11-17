@@ -5,6 +5,7 @@
 % under the terms of the GNU General Public License, with a linking
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
-
-function y=getK_MEFL(UT)
-    y=UT.k_MEFL;
+    
+function ERF = FITC_to_ERF(UT, data)
+  % Converts FITC arbitrary units into standard ERF units
+  ERF = UT.k_ERF * data;

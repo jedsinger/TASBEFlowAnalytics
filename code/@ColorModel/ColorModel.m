@@ -8,13 +8,13 @@
 
 
 % ColorModel is the class that allows
-% a) Colors to be mapped to standard units (MEFL)
+% a) Colors to be mapped to standard units (ERF)
 % b) Autofluorescence removal
 % c) Spectral overlap compensation
 function CM = ColorModel(beadfile, blankfile, channels, colorfiles, pairfiles)
         CM.version = tasbe_version();
         %public settings
-        CM.FITC_channel_name = 'FITC-A'; % Which channel are MEFLs on?
+        CM.FITC_channel_name = 'FITC-A'; % Which channel are ERFs on?
         CM.FITC_channel=[];
         CM.bead_plot = 1  ;         % Should the bead calibration plot be produced?
         CM.bead_peak_threshold=[];  % If set, determines minimum for bead peaks
@@ -36,12 +36,13 @@ function CM = ColorModel(beadfile, blankfile, channels, colorfiles, pairfiles)
         
         %%% NOT SURE if we need to initialize these properties
         
-        CM.unit_translation=[]  ;      % conversion of FITC channel to MEFL
+        CM.unit_translation=[]  ;      % conversion of FITC channel to ERF
         CM.autofluorescence_model=[];  % array, one per channel, for removing autofluorescence
         CM.compensation_model=[]     ; % For compensating for spectral overlap
         CM.color_translation_model=[] ;% For converting and channel to FITC equiv
         CM.noise_model=[]             ;% For understanding the expected constitutive expression noise
         CM.filters={};                 % filters to remove problematic data (e.g. debris, time-contamination)
+        CM.standardUnits = 'not yet set';  % Should be the value from column E in BeadCatalog.xlsx
 
         CM.filters{1} = TimeFilter(); % add default quarter second data exclusion
         
@@ -71,7 +72,6 @@ function CM = ColorModel(beadfile, blankfile, channels, colorfiles, pairfiles)
             CM.ColorPairFiles = pairfiles;
         end
         
-        CM.standardUnits = 'MEFL';  % Should be the value from column E in BeadCatalog.xlsx
 
         % constructs for every data file -- this might need another class
         % that associates the file name with a description 

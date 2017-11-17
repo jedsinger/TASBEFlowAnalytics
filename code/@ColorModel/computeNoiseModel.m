@@ -40,7 +40,7 @@ for i=1:numel(CM.Channels)
         if(cCtrl==-1), error('Missing channel %s',getPrintName(cp{ctrl_idx})); end
         
         % read the file and get another layer of statistics
-        data = readfcs_compensated_MEFL(CM,cp{4},false,true);
+        data = readfcs_compensated_ERF(CM,cp{4},false,true);
         [localcounts localmeans localstds] = subpopulation_statistics(bins,data,cCtrl,'geometric');
         n_files=n_files+1;
         counts(:,n_files) = localcounts;
@@ -50,7 +50,7 @@ for i=1:numel(CM.Channels)
         detailmeans{i}{n_files} = means(:,n_files);
         detailstds{i}{n_files} = stds(:,n_files);
 
-        which = localmeans(:,target)>(getStdMEFL(CM.autofluorescence_model{i})*2) & localcounts>100;
+        which = localmeans(:,target)>(getStdERF(CM.autofluorescence_model{i})*2) & localcounts>100;
         if(sum(which)>0)
             minset(n_files) = min(localstds(which,target));
         else
@@ -64,7 +64,7 @@ for i=1:numel(CM.Channels)
         continue;
     end
     
-    which = (means>getStdMEFL(CM.autofluorescence_model{i})*2) & counts>100;
+    which = (means>getStdERF(CM.autofluorescence_model{i})*2) & counts>100;
     noisemins(i) = mean(minset);
     noisemeans(i) = mean(stds(which));
     noisestds(i) = std(stds(which));
@@ -74,7 +74,7 @@ for i=1:numel(CM.Channels)
         set(h,'visible','off');
         barmin = 1e9; barmax = 1e3;
         for j=1:n_files
-            which = means(:,j)>getStdMEFL(CM.autofluorescence_model{i})*2 & counts(:,j)>100;
+            which = means(:,j)>getStdERF(CM.autofluorescence_model{i})*2 & counts(:,j)>100;
             semilogx(means(which,j),stds(which,j),'b-'); hold on;
             barmin = min(min(means(which,j)),barmin); barmax = max(max(means(which,j)),barmax);
         end

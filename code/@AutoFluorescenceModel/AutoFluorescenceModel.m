@@ -10,8 +10,8 @@
 % It is assumed that an array is used to associated this with channels
 %  af_mean          % linear mean in arbitrary FACS units
 %  af_std           % linear std.dev. in arbitrary FACS units
-%  af_mean_MEFL=NaN % linear mean in MEFL
-%  af_std_MEFL=NaN  % linear std.dev. in MEFL
+%  af_mean_ERF=NaN % linear mean in ERF
+%  af_std_ERF=NaN  % linear std.dev. in ERF
 %  n                % number of points used in this computation
 function AFM = AutoFluorescenceModel(data)
     if nargin == 0
@@ -27,7 +27,7 @@ function AFM = AutoFluorescenceModel(data)
         AFM.af_std = std(trimmed);
         AFM.n = numel(trimmed);
     end
-    AFM.af_mean_MEFL = [];
-    AFM.af_std_MEFL = [];
+    AFM.af_mean_ERF = [];
+    AFM.af_std_ERF = [];
     AFM=class(AFM,'AutoFluorescenceModel');
        
