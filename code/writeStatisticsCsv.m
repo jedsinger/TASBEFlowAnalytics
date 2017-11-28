@@ -11,21 +11,19 @@ function statisticsFile = writeStatisticsCsv(numConditions, channels, sampleIds,
     % First create the default output filename.
     statisticsFile = [pathToOutputFiles '/statisticsFile.csv'];
     
-    % Create a header for the first row of the output file (might not be
-    % necessary).
+    % Create a header for the first row of the output file.
     fileHeader = buildDefaultStatsFileHeader(channels);
     
     statsTable = table;
     for i=1:numConditions
         % Build a table and concatenate 
-        perSampleTable = formatDataPerSample(sampleIds{i}, binCounts{i}, geoMeans{i}, geoStdDev{i});
+        perSampleTable = formatDataPerSampleIndivdualColumns(sampleIds{i}, binCounts{i}, geoMeans{i}, geoStdDev{i});
         statsTable = [statsTable; perSampleTable];
     end
     
-    % Write the table without headers for now. Included below is a second
-    % function that will split the data into columns to allow for column
-    % specific headers. Don't use it until we know we need the headers.
-    writetable(statsTable, statisticsFile, 'WriteVariableNames', false);
+    % Use the fileHeader for the column names on the table.
+    statsTable.Properties.VariableNames = fileHeader;
+    writetable(statsTable, statisticsFile, 'WriteVariableNames', true);
 end
 
 function fileHeader = buildDefaultStatsFileHeader(channels)
@@ -34,18 +32,61 @@ function fileHeader = buildDefaultStatsFileHeader(channels)
     % Not elegant, but it gets the job done.
     for i=1:numel(channels)
         channelName = getName(channels{i});
-        binHeaders{i} = ['BinCount_' channelName];
-        meanHeaders{i} = ['GeoMean_' channelName];
-        stdDevHeaders{i} = ['GeoStdDev_' channelName];
+        binNames{i} = ['BinCount_' channelName];
+        meanNames{i} = ['GeoMean_' channelName];
+        stdDevNames{i} = ['GeoStdDev_' channelName];
     end
     
-    % Join the headers, again, not elegant
-    binNames = strjoin(binHeaders, ',');
-    meanNames = strjoin(meanHeaders, ',');
-    stdDevNames = strjoin(stdDevHeaders, ',');
+    % Don't separate with commas. We want all the column names in a cell
+    % array so we can pass them to a table.
+    fileHeader = {'ID', binNames, meanNames, stdDevNames};
+end
+
+function perSampleTable = formatDataPerSampleIndivdualColumns(sampleId, counts, means, stddevs)
+    % SampleId should just be a string. Means and stddevs should be a 1 by
+    % number of channels matrix.  Counts should be a M by number of
+    % channels matrix.  Padding will be necessary in order to build a
+    % table.  Separate into individual columns for labeling the columns
+    % with headers.
+    [numCountsPerChannel, numChannels] = size(counts);
     
-    allNames = {'ID', binNames, meanNames, stdDevNames};
-    fileHeader = strjoin(allNames, ',');
+    % Number of rows to pad
+    rowsOfPadding = numCountsPerChannel-1;
+    
+    % Need to pad with a column vector
+    columnVecPadding = cell(rowsOfPadding, 1);
+    
+    % Split the means and stddevs into columns and pad.
+    for i=1:numChannels
+        meansPadded{i} = [{means(1,i)}; columnVecPadding];
+        stddevsPadded{i} = [{stddevs(1,i)}; columnVecPadding];
+    end
+    
+    % Pad the sampleId
+    ID = [{sampleId}; sampleIdPadding];
+    
+    % TODO: How big will the data be?  Should we worry about trying to
+    % preallocate the table or not put on column specific headers?
+    
+    % Hacky way to build the table, but need the individual columns if we
+    % want individual column names.
+    perSampleTable = table(ID);
+    
+    % Add the counts as columns
+    for i=1:numChannels
+        perSampleTable = [perSampleTable, counts(:,i)];
+    end
+    
+    % Add the padded means as columns
+    for i=1:numChannels
+        perSampleTable = [perSampleTable, meansPadded{i}];
+    end
+    
+    % Add the padded stddevs as columns
+    for i=1:numChannels
+        perSampleTable = [perSampleTable, stddevsPadded{i}];
+    end
+    
 end
 
 function perSampleTable = formatDataPerSample(sampleId, counts, means, stddevs)
@@ -77,51 +118,4 @@ function perSampleTable = formatDataPerSample(sampleId, counts, means, stddevs)
     
     % Build the table
     perSampleTable = table(sampleIdPadded,counts,meansPadded,stddevsPadded);
-end
-
-function perSampleTable = formatDataPerSampleIndivdualColumns(sampleId, counts, means, stddevs)
-    % SampleId should just be a string. Means and stddevs should be a 1 by
-    % number of channels matrix.  Counts should be a M by number of
-    % channels matrix.  Padding will be necessary in order to build a
-    % table.  Separate into individual columns for labeling the columns
-    % with headers.
-    [numCountsPerChannel, numChannels] = size(counts);
-    
-    % Number of rows to pad
-    rowsOfPadding = numCountsPerChannel-1;
-    
-    % Need to pad with a column vector
-    columnVecPadding = cell(rowsOfPadding, 1);
-    
-    % Split the means and stddevs into columns and pad.
-    for i=1:numChannels
-        meansPadded{i} = [{means(1,i)}; columnVecPadding];
-        stddevsPadded{i} = [{stddevs(1,i)}; columnVecPadding];
-    end
-    
-    % Pad the sampleId
-    sampleIdPadded = [{sampleId}; sampleIdPadding];
-    
-    % TODO: How big will the data be?  Should we worry about trying to
-    % preallocate the table or not put on column specific headers?
-    
-    % Hacky way to build the table, but need the individual columns if we
-    % want individual column names.
-    perSampleTable = table(sampleIdPadded);
-    
-    % Add the counts as columns
-    for i=1:numChannels
-        perSampleTable = [perSampleTable, counts(:,i)];
-    end
-    
-    % Add the padded means as columns
-    for i=1:numChannels
-        perSampleTable = [perSampleTable, meansPadded{i}];
-    end
-    
-    % Add the padded stddevs as columns
-    for i=1:numChannels
-        perSampleTable = [perSampleTable, stddevsPadded{i}];
-    end
-    
 end

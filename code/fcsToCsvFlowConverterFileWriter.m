@@ -15,7 +15,13 @@ function data = fcsToCsvFlowConverterFileWriter(CM, filename, with_AF, floor)
     data = readfcs_compensated_ERF(CM, filename, with_AF, floor);
     [filepath,name,ext] = fileparts(filename);
     csvName = [filepath name '.csv'];
-
-    csvwrite(csvName, data);
+    
+    % Create a table so we can write the column names and data with one
+    % command.
+    dataTable = table(data);
+    
+    % The column headers are just the channel names.
+    dataTable.Properties.VariableNames = CM.Channels;
+    writetable(dataTable, csvName, 'WriteVariableNames', true);
 end
 
