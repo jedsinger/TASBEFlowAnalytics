@@ -53,10 +53,11 @@ file_pairs = {...
 statsTable = readtable(statisticsFile);
 histTable = readtable(histogramFile);
 
-sampleID = statsTable{:,1};
-binCounts = statsTable{:,2:4};
-means = statsTable{:,5:7};
-stds = statsTable{:,8:10};
+sampleIDListWithPadding = statsTable{:,1};
+sampleIDs = sampleIDListWithPadding(find(~cellfun(@isempty,sampleIDListWithPadding)));
+binCounts = cell2mat(statsTable{:,2:4});
+means = cell2mat(statsTable{:,5:7});
+stds = cell2mat(statsTable{:,8:10});
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check results in CSV files:
@@ -161,14 +162,14 @@ result_expected_stds = [...
 assertEqual(numel(results), 14);
 
 % spot-check name, bincenter, bin-count
-assertEqual(results{1}.condition, 'Dox 0.1');
-assertElementsAlmostEqual(log10(results{1}.bincenters([1 10 40 end])), [4.0500    4.9500    7.9500    9.9500], 'relative', 1e-2);
-assertElementsAlmostEqual(results{1}.bincounts, result1_expected_bincounts,     'relative', 1e-2);
+assertEqual(sampleIDs{1}, 'Dox 0.1');
+%assertElementsAlmostEqual(log10(results{1}.bincenters([1 10 40 end])), [4.0500    4.9500    7.9500    9.9500], 'relative', 1e-2);
+assertElementsAlmostEqual(binCounts, result1_expected_bincounts,     'relative', 1e-2);
 
-assertEqual(results{14}.condition, 'Dox 2000.0');
-assertElementsAlmostEqual(log10(results{14}.bincenters([1 10 40 end])), [4.0500    4.9500    7.9500    9.9500], 'relative', 1e-2);
+assertEqual(sampleIDs{14}, 'Dox 2000.0');
+%assertElementsAlmostEqual(log10(results{14}.bincenters([1 10 40 end])), [4.0500    4.9500    7.9500    9.9500], 'relative', 1e-2);
 
 for i=1:14,
-    assertElementsAlmostEqual(results{i}.means, result_expected_means(i,:), 'relative', 1e-2);
-    assertElementsAlmostEqual(results{i}.stds,  result_expected_stds(i,:),  'relative', 1e-2);
+    assertElementsAlmostEqual(means, result_expected_means(i,:), 'relative', 1e-2);
+    assertElementsAlmostEqual(stds,  result_expected_stds(i,:),  'relative', 1e-2);
 end
