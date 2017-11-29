@@ -10,7 +10,6 @@
 % CSV file and return the data.  This will overwrite any existing data.
 
 function data = fcsToCsvFlowConverterFileWriter(CM, filename, with_AF, floor)
-    if(CM.initialized<1), error('Cannot read MEFL: ColorModel not yet resolved'); end; % ensure initted
     
     data = readfcs_compensated_ERF(CM, filename, with_AF, floor);
     [filepath,name,ext] = fileparts(filename);
