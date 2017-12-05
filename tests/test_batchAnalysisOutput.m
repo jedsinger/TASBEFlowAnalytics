@@ -55,9 +55,23 @@ histTable = readtable(histogramFile);
 
 sampleIDListWithPadding = statsTable{:,1};
 sampleIDs = sampleIDListWithPadding(find(~cellfun(@isempty,sampleIDListWithPadding)));
-binCounts = cell2mat(statsTable{:,2:4});
-means = cell2mat(statsTable{:,5:7});
-stds = cell2mat(statsTable{:,8:10});
+
+numTests = numel(sampleIDs);
+totalSize = numel(sampleIDListWithPadding);
+numCountsWithinTest = totalSize / numTests;
+
+binCounts = statsTable{:,2:4};
+means = statsTable{:,5:7};
+stds = statsTable{:,8:10};
+
+% Separate metrics by tests
+for i=1:numTests
+    startIndex = numCountsWithinTest * (i-1) + 1;
+    stopIndex = numCountsWithinTest * i;
+    binCountsCell{i} = binCounts(startIndex:stopIndex, :);
+    meansCell{i} = means(startIndex:stopIndex, :);
+    stdsCell{i} = stds(startIndex:stopIndex, :);
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check results in CSV files:
@@ -159,7 +173,7 @@ result_expected_stds = [...
     5.5327    4.3326    8.3846
     ];
 
-assertEqual(numel(results), 14);
+assertEqual(numel(sampleIDs), 14);
 
 % spot-check name, bincenter, bin-count
 assertEqual(sampleIDs{1}, 'Dox 0.1');

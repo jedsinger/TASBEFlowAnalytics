@@ -11,38 +11,28 @@ function statisticsFile = writeStatisticsCsv(numConditions, channels, sampleIds,
     % First create the default output filename.
     statisticsFile = [pathToOutputFiles '/statisticsFile.csv'];
     
+    % Column name creation moved due to naming conflict in matlab.
     % Create a header for the first row of the output file.
-    fileHeader = buildDefaultStatsFileHeader(channels);
+%     fileHeader = buildDefaultStatsFileHeader(channels);
     
     statsTable = table;
     for i=1:numConditions
         % Build a table and concatenate 
-        perSampleTable = formatDataPerSampleIndivdualColumns(sampleIds{i}, binCounts{i}, geoMeans{i}, geoStdDev{i});
+        perSampleTable = formatDataPerSampleIndivdualColumns(channels, sampleIds{i}, binCounts{i}, geoMeans{i}, geoStdDev{i});
         statsTable = [statsTable; perSampleTable];
     end
     
     % Use the fileHeader for the column names on the table.
-    statsTable.Properties.VariableNames = fileHeader;
+    %statsTable.Properties.VariableNames = fileHeader;
+    
+    % Needed to add column names when I created the tables due to conflicts
+    % with the default names.  For a table, the column names must be valid
+    % matlab variable names so I filtered out spaces and hypens and
+    % replaced them with underscores.
     writetable(statsTable, statisticsFile, 'WriteVariableNames', true);
 end
 
-function fileHeader = buildDefaultStatsFileHeader(channels)
-    % Default file header to match the default file format.
-    
-    % Not elegant, but it gets the job done.
-    for i=1:numel(channels)
-        channelName = getName(channels{i});
-        binNames{i} = ['BinCount_' channelName];
-        meanNames{i} = ['GeoMean_' channelName];
-        stdDevNames{i} = ['GeoStdDev_' channelName];
-    end
-    
-    % Don't separate with commas. We want all the column names in a cell
-    % array so we can pass them to a table.
-    fileHeader = {'ID', binNames, meanNames, stdDevNames};
-end
-
-function perSampleTable = formatDataPerSampleIndivdualColumns(sampleId, counts, means, stddevs)
+function perSampleTable = formatDataPerSampleIndivdualColumns(channels, sampleId, counts, means, stddevs)
     % SampleId should just be a string. Means and stddevs should be a 1 by
     % number of channels matrix.  Counts should be a M by number of
     % channels matrix.  Padding will be necessary in order to build a
@@ -63,30 +53,51 @@ function perSampleTable = formatDataPerSampleIndivdualColumns(sampleId, counts, 
     end
     
     % Pad the sampleId
-    ID = [{sampleId}; sampleIdPadding];
+    ID = [{sampleId}; columnVecPadding];
     
     % TODO: How big will the data be?  Should we worry about trying to
     % preallocate the table or not put on column specific headers?
     
     % Hacky way to build the table, but need the individual columns if we
     % want individual column names.
-    perSampleTable = table(ID);
+    perSampleTable = table(ID, 'VariableNames', {'ID'});
+    binCountTable = table;
+    meanTable = table;
+    stdTable = table;
     
     % Add the counts as columns
     for i=1:numChannels
-        perSampleTable = [perSampleTable, counts(:,i)];
+        channelName = getName(channels{i});
+        invalidChars = '-|\s';  % Matlab does not like hypens or whitespace in variable names.
+        matlabValidVariableNameChannelName = regexprep(channelName,invalidChars,'_');
+        
+        binColName = ['BinCount_' matlabValidVariableNameChannelName];
+        meanColName = ['GeoMean_' matlabValidVariableNameChannelName];
+        stdDevColName = ['GeoStdDev_' matlabValidVariableNameChannelName];
+        
+        binCountTable = [binCountTable, table(counts(:,i),'VariableNames',{binColName})];
+        meanTable = [meanTable, table(meansPadded{i},'VariableNames',{meanColName})];
+        stdTable = [stdTable, table(stddevsPadded{i},'VariableNames',{stdDevColName})];
     end
     
-    % Add the padded means as columns
-    for i=1:numChannels
-        perSampleTable = [perSampleTable, meansPadded{i}];
+    perSampleTable = [perSampleTable, binCountTable, meanTable, stdTable];
+    
+end
+
+function fileHeader = buildDefaultStatsFileHeader(channels)
+    % Default file header to match the default file format.
+    
+    % Not elegant, but it gets the job done.
+    for i=1:numel(channels)
+        channelName = getName(channels{i});
+        binNames{i} = ['BinCount_' channelName];
+        meanNames{i} = ['GeoMean_' channelName];
+        stdDevNames{i} = ['GeoStdDev_' channelName];
     end
     
-    % Add the padded stddevs as columns
-    for i=1:numChannels
-        perSampleTable = [perSampleTable, stddevsPadded{i}];
-    end
-    
+    % Don't separate with commas. We want all the column names in a cell
+    % array so we can pass them to a table.
+    fileHeader = {'ID', binNames, meanNames, stdDevNames};
 end
 
 function perSampleTable = formatDataPerSample(sampleId, counts, means, stddevs)

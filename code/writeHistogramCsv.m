@@ -12,36 +12,21 @@ function histogramFile = writeHistogramCsv(numConditions, channels, sampleIds, b
     histogramFile = [pathToOutputFiles '/histogramFile.csv'];
     
     % Create a header for the first row of the output file.
-    fileHeader = buildDefaultStatsFileHeader(channels);
+%     fileHeader = buildDefaultStatsFileHeader(channels);
     
     histTable = table;
     for i=1:numConditions
         % Build a table and concatenate 
-        perSampleTable = formatDataPerSample(sampleIds{i}, binCenters{i}, binCounts{i});
+        perSampleTable = formatDataPerSample(channels, sampleIds{i}, binCenters, binCounts{i});
         histTable = [histTable; perSampleTable];
     end
     
     % Use the fileHeader for the column names on the table.
-    histTable.Properties.VariableNames = fileHeader;
+%     histTable.Properties.VariableNames = fileHeader;
     writetable(histTable, histogramFile, 'WriteVariableNames', true);
 end
 
-function fileHeader = buildDefaultStatsFileHeader(channels)
-    % Default file header to match the default file format.
-    
-    % Not elegant, but it gets the job done.
-    for i=1:numel(channels)
-        channelName = getName(channels{i});
-        binHeaders{i} = ['BinCount_' channelName];
-    end
-    
-    % Don't separate with commas. We want all the column names in a cell
-    % array so we can pass them to a table.
-    fileHeader = {'ID', 'BinCenters', binHeaders};
-end
-
-
-function perSampleTable = formatDataPerSample(sampleId, binCenters, counts)
+function perSampleTable = formatDataPerSample(channels, sampleId, binCenters, counts)
     % The channels are actually the column labels for the data and the
     % binCenters are actually the row labels.  To make writing the data to
     % a CSV file easier, I'm going to include the binCenters in the table
@@ -64,13 +49,37 @@ function perSampleTable = formatDataPerSample(sampleId, binCenters, counts)
     
     % Hacky way to build the table, but need the individual columns if we
     % want individual column names.
-    perSampleTable = table(sampleIdPadded, binCenters);
+    perSampleTable = table(sampleIdPadded, binCenters', 'VariableNames', {'ID', 'BinCenters'});
     
     % TODO: How big will the data be?  Should we worry about trying to
     % preallocate the table or not put on column specific headers?
     
+    binCountTable = table;
     % Add the counts as columns
     for i=1:numChannels
-        perSampleTable = [perSampleTable, counts(:,i)];
+        channelName = getName(channels{i});
+        invalidChars = '-|\s';  % Matlab does not like hypens or whitespace in variable names.
+        matlabValidVariableNameChannelName = regexprep(channelName,invalidChars,'_');
+        binColName = ['BinCount_' matlabValidVariableNameChannelName];
+        
+        binCountTable = [binCountTable, table(counts(:,i),'VariableNames',{binColName})];
     end
+    
+    perSampleTable = [perSampleTable, binCountTable];
+end
+
+function fileHeader = buildDefaultStatsFileHeader(channels)
+    % Default file header to match the default file format.
+    
+    % Not elegant, but it gets the job done.
+    for i=1:numel(channels)
+        channelName = getName(channels{i});
+        invalidChars = '-|\s';  % Matlab does not like hypens or whitespace in variable names.
+        matlabValidVariableNameChannelName = regexprep(channelName,invalidChars,'_');
+        binHeaders{i} = ['BinCount_' matlabValidVariableNameChannelName];
+    end
+    
+    % Don't separate with commas. We want all the column names in a cell
+    % array so we can pass them to a table.
+    fileHeader = {'ID', 'BinCenters', binHeaders};
 end
