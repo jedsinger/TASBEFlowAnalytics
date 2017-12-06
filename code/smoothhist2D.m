@@ -49,6 +49,8 @@ else
 end
 if nargin < 7 || ~largeoutliers, markersize = 1; else markersize = 5; end;
 
+if TASBEConfig.get('contoursInsteadOfHeatmaps') && plottype=='image', plottype='contour';
+
 edges1 = linspace(minx(1), maxx(1), nbins(1)+1);
 ctrs1 = edges1(1:end-1) + .5*diff(edges1);
 edges1 = [-Inf edges1(2:end-1) Inf];

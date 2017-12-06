@@ -21,4 +21,4 @@ AGP.show_nonselected = true;
 AGP.visible = false;
 AGP.largeoutliers = true;
 AGP.range = [];
-AGP.density = 0;
+AGP.density = 1;
