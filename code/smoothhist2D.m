@@ -38,7 +38,7 @@ function smoothhist2D(X,lambda,nbins,outliercutoff,plottype,range,largeoutliers)
 %   Requires MATLAB® R14.
 
 if nargin < 4 || isempty(outliercutoff), outliercutoff = .05; end
-if nargin < 5, plottype = 'image'; end
+if nargin < 5 || isempty(plottype), plottype = TASBEConfig.get('heatmapPlotType'); end
 % JSB added this switch on 8/28/12
 if nargin < 6 || isempty(range), 
     minx = min(X,[],1);
@@ -48,8 +48,6 @@ else
     maxx = range(2,:);
 end
 if nargin < 7 || ~largeoutliers, markersize = 1; else markersize = 5; end;
-
-if TASBEConfig.get('contoursInsteadOfHeatmaps') && plottype=='image', plottype='contour';
 
 edges1 = linspace(minx(1), maxx(1), nbins(1)+1);
 ctrs1 = edges1(1:end-1) + .5*diff(edges1);

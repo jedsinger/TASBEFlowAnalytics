@@ -27,7 +27,7 @@ classdef TASBEConfig
             s.graphPlotSize = [6 4];        % What size (in inches) should data graph figures be?
             s.heatmapPlotSize = [5 5];      % What size (in inches) should scatter/heatmap figures be?
             s.largeOutliers = false;        % Should outliers in heatmap figures be large, for output in small figures?
-            s.contoursInsteadOfHeatmaps = false;    % Should contour plots be used instead of heatmap images?
+            s.heatmapPlotType = 'image';    % Should contour plots be used instead of heatmap images?
             
             % supporting plots, i.e., those supporting the transformation of raw data into processed data, like autofluorescence, compensation, units
             s.supporting = struct();
