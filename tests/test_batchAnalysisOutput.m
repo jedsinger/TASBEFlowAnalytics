@@ -13,6 +13,9 @@ stem1011 = '../TASBEFlowAnalytics-Tutorial/example_assay/LacI-CAGop_';
 % set up metadata
 experimentName = 'LacI Transfer Curve';
 
+% create default filenames based on experiment name
+baseName = ['/tmp/' regexprep(experimentName,' ','_')];
+
 % Configure the analysis
 % Analyze on a histogram of 10^[first] to 10^[third] ERF, with bins every 10^[second]
 bins = BinSequence(4,0.1,10,'log_bins');
@@ -28,20 +31,13 @@ AP=setUseAutoFluorescence(AP,false');
 
 % Make a map of condition names to file sets
 file_pairs = {...
-  'Dox 0.1',    {[stem1011 'B3_B03_P3.fcs']}; % Replicates go here, e.g., {[rep1], [rep2], [rep3]}
-  'Dox 0.2',    {[stem1011 'B4_B04_P3.fcs']};
-  'Dox 0.5',    {[stem1011 'B5_B05_P3.fcs']};
-  'Dox 1.0',    {[stem1011 'B6_B06_P3.fcs']};
-  'Dox 2.0',    {[stem1011 'B7_B07_P3.fcs']};
-  'Dox 5.0',    {[stem1011 'B8_B08_P3.fcs']};
-  'Dox 10.0',   {[stem1011 'B9_B09_P3.fcs']};
-  'Dox 20.0',   {[stem1011 'B10_B10_P3.fcs']};
-  'Dox 50.0',   {[stem1011 'B11_B11_P3.fcs']};
-  'Dox 100.0',  {[stem1011 'B12_B12_P3.fcs']};
-  'Dox 200.0',  {[stem1011 'C1_C01_P3.fcs']};
-  'Dox 500.0',  {[stem1011 'C2_C02_P3.fcs']};
-  'Dox 1000.0', {[stem1011 'C3_C03_P3.fcs']};
-  'Dox 2000.0', {[stem1011 'C4_C04_P3.fcs']};
+  'Dox 0.1/0.2',    {[stem1011 'B3_B03_P3.fcs'], [stem1011 'B4_B04_P3.fcs']}; % Replicates go here, e.g., {[rep1], [rep2], [rep3]}
+  'Dox 0.5/1.0',    {[stem1011 'B5_B05_P3.fcs'], [stem1011 'B6_B06_P3.fcs']};
+  'Dox 2.0/5.0',    {[stem1011 'B7_B07_P3.fcs'], [stem1011 'B8_B08_P3.fcs']};
+  'Dox 10.0/20.0',   {[stem1011 'B9_B09_P3.fcs'], [stem1011 'B10_B10_P3.fcs']};
+  'Dox 50.0/100.0',   {[stem1011 'B11_B11_P3.fcs'], [stem1011 'B12_B12_P3.fcs']};
+  'Dox 200.0/500.0',  {[stem1011 'C1_C01_P3.fcs'], [stem1011 'C2_C02_P3.fcs']};
+  'Dox 1000.0/2000.0', {[stem1011 'C3_C03_P3.fcs'], [stem1011 'C4_C04_P3.fcs']};
   };
 
 n_conditions = size(file_pairs,1);
@@ -57,7 +53,7 @@ plot_batch_histograms(results,sampleresults,OS,{'b','y','r'},CM);
 save('/tmp/LacI-CAGop-batch.mat','AP','bins','file_pairs','OS','results','sampleresults');
 
 % Test serializing the output
-[statisticsFile, histogramFile] = serializeBatchOutput(file_pairs, CM, AP, sampleresults, '../');
+[statisticsFile, histogramFile] = serializeBatchOutput(file_pairs, CM, AP, sampleresults, baseName);
 
 % Read the files into matlab tables
 statsTable = readtable(statisticsFile);
@@ -187,17 +183,17 @@ result_expected_stds = [...
     5.5327    4.3326    8.3846
     ];
 
-assertEqual(numel(sampleIDs), 14);
+assertEqual(numel(sampleIDs), 7);
 
 % spot-check names
-assertEqual(sampleIDs{1}, 'Dox 0.1');
-assertEqual(sampleIDs{14}, 'Dox 2000.0');
+assertEqual(sampleIDs{1}, 'Dox 0.1/0.2');
+assertEqual(sampleIDs{7}, 'Dox 1000.0/2000.0');
 
 % spot-check binCounts (Not sure why this is failing)
 % assertElementsAlmostEqual(binCountsCell{1}, result1_expected_bincounts, 'relative', 1e-2);
 
-% Not sure why the geoMeans is okay and stdDevs is failing
-for i=1:14,
+% spot-check geo means and geo std devs.
+for i=1:7,
     assertElementsAlmostEqual(geoMeans(i,:), result_expected_means(i,:), 'relative', 1e-2);
     assertElementsAlmostEqual(geoStdDevs(i,:),  result_expected_stds(i,:),  'relative', 1e-2);
 end

@@ -6,23 +6,34 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function histogramFile = writeHistogramCsv(numConditions, channels, sampleIds, binCounts, binCenters, pathToOutputFiles)
+function histogramFile = writeHistogramCsv(channels, sampleIds, sampleresults, binCenters, baseName)
 
     % First create the default output filename.
-    histogramFile = [pathToOutputFiles '/histogramFile.csv'];
+    histogramFile = [baseName '_histogramFile.csv'];
     
-    % Create a header for the first row of the output file.
-%     fileHeader = buildDefaultStatsFileHeader(channels);
+    numConditions = numel(sampleIds);
+    
+    % Pull histogram data out of sample results.
+    binCounts = cell(numConditions, 1);
+    for i=1:numConditions
+        numReplicates = numel(sampleresults{i});
+        binCounts{i} = cell(1,numReplicates);
+        for j=1:numReplicates
+            binCounts{i}{j} = sampleresults{i}{j}.BinCounts;
+        end
+    end
     
     histTable = table;
     for i=1:numConditions
-        % Build a table and concatenate 
+        % Build a table and concatenate vertically
         perSampleTable = formatDataPerSample(channels, sampleIds{i}, binCenters, binCounts{i});
         histTable = [histTable; perSampleTable];
     end
     
-    % Use the fileHeader for the column names on the table.
-%     histTable.Properties.VariableNames = fileHeader;
+    % Needed to add column names when I created the tables due to conflicts
+    % with the default names.  For a table, the column names must be valid
+    % matlab variable names so I filtered out spaces and hypens and
+    % replaced them with underscores.
     writetable(histTable, histogramFile, 'WriteVariableNames', true);
 end
 
@@ -36,10 +47,12 @@ function perSampleTable = formatDataPerSample(channels, sampleId, binCenters, co
     % SampleId, BinCenters, Channel_1_counts, Channel_2_counts, ...
     
     % Only the sampleId needs to be padded to create the table.
-    [numCountsPerChannel, numChannels] = size(counts);
+    numChannels = numel(channels);
+    numReplicates = numel(counts);
+    numBinsPerChannel = numel(binCenters);
     
-    % Number of rows to pad
-    rowsOfPadding = numCountsPerChannel-1;
+    % Number of rows to pad sample id
+    rowsOfPadding = numBinsPerChannel * numReplicates - 1;
     
     % Need to pad the sampleId with a column vector
     sampleIdPadding = cell(rowsOfPadding, 1);
@@ -47,14 +60,25 @@ function perSampleTable = formatDataPerSample(channels, sampleId, binCenters, co
     % Pad the sampleId
     sampleIdPadded = [{sampleId}; sampleIdPadding];
     
+    % Make sure all rows match up with a bin center
+    binCentersForAllReplicates = repmat(binCenters', numReplicates, 1);
+    
+    % Split by the channels so the table will have the correct column labels.
+    binCounts = cell(1, numChannels);
+    for i=1:numChannels
+        for j=1:numReplicates
+            binCounts{i} = [binCounts{i}; counts{j}(:,i)];
+        end
+    end
+    
     % Hacky way to build the table, but need the individual columns if we
     % want individual column names.
-    perSampleTable = table(sampleIdPadded, binCenters', 'VariableNames', {'ID', 'BinCenters'});
+    perSampleTable = table(sampleIdPadded, binCentersForAllReplicates, 'VariableNames', {'ID', 'BinCenters'});
     
     % TODO: How big will the data be?  Should we worry about trying to
     % preallocate the table or not put on column specific headers?
-    
     binCountTable = table;
+    
     % Add the counts as columns
     for i=1:numChannels
         channelName = getName(channels{i});
@@ -62,7 +86,7 @@ function perSampleTable = formatDataPerSample(channels, sampleId, binCenters, co
         matlabValidVariableNameChannelName = regexprep(channelName,invalidChars,'_');
         binColName = ['BinCount_' matlabValidVariableNameChannelName];
         
-        binCountTable = [binCountTable, table(counts(:,i),'VariableNames',{binColName})];
+        binCountTable = [binCountTable, table(binCounts{i},'VariableNames',{binColName})];
     end
     
     perSampleTable = [perSampleTable, binCountTable];
