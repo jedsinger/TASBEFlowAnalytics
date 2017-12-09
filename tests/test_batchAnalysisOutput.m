@@ -70,14 +70,11 @@ binCounts = histTable{:,3:5};
 sampleIDListWithPadding = statsTable{:,1};
 sampleIDs = sampleIDListWithPadding(find(~cellfun(@isempty,sampleIDListWithPadding)));
 
-numTests = numel(sampleIDs);
-[r, numChannels] = size(geoMeans);
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check results in CSV files:
 
-% The first five rows should be enough to verify writing the file
+% The first five rows should be enough to verify writing the histogram file
 % correctly.
 expected_bincounts = [...
         6799        2200        1383;
@@ -87,6 +84,7 @@ expected_bincounts = [...
         7622        4623        3741;
         ];
        
+% Means and stddevs tests writing the statistics file correctly.
 expected_means = 1e5 * [...
     0.2217    2.4948    4.1064
     0.2219    2.4891    4.0757
@@ -121,6 +119,7 @@ expected_stds = [...
     5.5773    4.3900    8.4391
     ];
 
+
 assertEqual(numel(sampleIDs), 7);
 
 % spot-check names
@@ -135,3 +134,24 @@ for i=1:7,
     assertElementsAlmostEqual(geoMeans(i,:), expected_means(i,:), 'relative', 1e-2);
     assertElementsAlmostEqual(geoStdDevs(i,:),  expected_stds(i,:),  'relative', 1e-2);
 end
+
+% Check the first five rows of the first point cloud file
+expected_pointCloud = [...
+    42801.34    40500.46    33567.67
+    2456.10     42822.39    1039.11
+    70903.34    68176.25    20623.25
+    2830130.69  17561178.05   1039.11
+    8742.07     2238.27     1039.11
+    ];
+
+% The first point cloud file: /tmp/LacI-CAGop_B3_B03_P3_PointCloud.csv
+firstPointCloudFile = '/tmp/LacI-CAGop_B3_B03_P3_PointCloud.csv';
+
+% Read the point cloud into matlab tables
+cloudTable = readtable(firstPointCloudFile);
+
+% Split the cloud table
+points = cloudTable{1:5,:};
+
+% spot-check first five rows of binCounts
+assertElementsAlmostEqual(points, expected_pointCloud, 'relative', 1e-2);

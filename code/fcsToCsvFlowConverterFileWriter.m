@@ -10,17 +10,33 @@
 % CSV file and return the data.  This will overwrite any existing data.
 
 function data = fcsToCsvFlowConverterFileWriter(CM, filename, with_AF, floor)
-    
+    % process the file to obtain point cloud
     data = readfcs_compensated_ERF(CM, filename, with_AF, floor);
+    
+    % create output filename for cloud
     [filepath,name,ext] = fileparts(filename);
-    csvName = [filepath name '.csv'];
+    csvName = ['/tmp/' name '_PointCloud.csv'];
     
-    % Create a table so we can write the column names and data with one
-    % command.
-    dataTable = table(data);
+    % sanitize the channel names
+    channels = getChannels(CM);
+    sanitizedChannelName = cell(1, numel(channels));
     
-    % The column headers are just the channel names.
-    dataTable.Properties.VariableNames = CM.Channels;
-    writetable(dataTable, csvName, 'WriteVariableNames', true);
+    for i=1:numel(channels)
+        channelName = getName(channels{i});
+        invalidChars = '-|\s';  % Matlab does not like hypens or whitespace in variable names.
+        sanitizedChannelName{i} = regexprep(channelName,invalidChars,'_');
+    end
+    
+    % Use the channel names as the column labels
+    columnLabels = strjoin(sanitizedChannelName, ',');
+    
+    % Write column labels to file
+    fprintf('Writing Point Cloud CSV file: %s\n', csvName);
+    fid = fopen(csvName,'w');
+    fprintf(fid, '%s\n', columnLabels);
+    fclose(fid);
+    
+    % Write the data to the file
+    dlmwrite(csvName, data, '-append','precision','%.2f');
 end
 
