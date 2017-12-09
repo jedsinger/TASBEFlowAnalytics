@@ -19,11 +19,6 @@ function [statisticsFile, histogramFile] = serializeBatchOutput(file_pairs, CM, 
     
     % Formats and writes the output to the Histogram file.
     histogramFile = writeHistogramCsv(channels, sampleIds, sampleresults, binCenters, baseName);
-    
-    % Write the data points to a file (without headers for now). This is 
-    %  just a wrapper around readfcs_compensated_ERF. It returns
-    % the data, but for now ignore it because I'm testing writing files.
-    %fcsToCsvFlowConverterFileWriter(CM, filename, getUseAutoFluorescence(AP), floor);
 
 end
 

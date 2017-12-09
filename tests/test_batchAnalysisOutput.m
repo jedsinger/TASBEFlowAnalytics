@@ -59,128 +59,66 @@ save('/tmp/LacI-CAGop-batch.mat','AP','bins','file_pairs','OS','results','sample
 statsTable = readtable(statisticsFile);
 histTable = readtable(histogramFile);
 
-% Split the table
-binCounts = statsTable{:,2:4};
-means = statsTable{:,5:7};
-stds = statsTable{:,8:10};
+% Split the stats table
+geoMeans = statsTable{:,5:7};
+geoStdDevs = statsTable{:,8:10};
+
+% Split the hist table
+binCounts = histTable{:,3:5};
 
 % Strip out the padding put into the sampleIds, means, and stdDevs
 sampleIDListWithPadding = statsTable{:,1};
 sampleIDs = sampleIDListWithPadding(find(~cellfun(@isempty,sampleIDListWithPadding)));
 
 numTests = numel(sampleIDs);
-totalSize = numel(sampleIDListWithPadding);
-numCountsWithinTest = totalSize / numTests;
-[r, numChannels] = size(means);
+[r, numChannels] = size(geoMeans);
 
-geoMeans = reshape(means(find(~arrayfun(@isnan,means))), numTests, numChannels);
-geoStdDevs = reshape(stds(find(~arrayfun(@isnan,stds))), numTests, numChannels);
-
-% Separate metrics by tests
-for i=1:numTests
-    startIndex = numCountsWithinTest * (i-1) + 1;
-    stopIndex = numCountsWithinTest * i;
-    binCountsCell{i} = binCounts(startIndex:stopIndex, :);
-end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check results in CSV files:
 
-result1_expected_bincounts = [...
-        6792        2206        1382;
-        8014        2724        2695;
-        8765        3321        2634;
-        8559        4632        2631;
-        7615        4618        3737;
-        6321        5588        4704;
-        3924        5932        5298;
-        1814        6286        5431;
-         510        5735        5794;
-         124        4266        4746;
-           0        3097        4161;
-           0        2283        3252;
-           0        2339        2923;
-           0        2543        3276;
-           0        2844        3593;
-           0        3388        4010;
-           0        3756        4006;
-           0        4026        3973;
-           0        4245        4138;
-           0        4434        4182;
-           0        4500        4182;
-           0        4286        4097;
-           0        4005        3880;
-           0        3629        3823;
-           0        3242        3681;
-           0        2737        3505;
-           0        2202        3228;
-           0        1728        3040;
-           0        1405        2597;
-           0         989        2384;
-           0         768        1921;
-           0         493        1621;
-           0         390        1339;
-           0         214         989;
-           0         150         802;
-           0         101         632;
-           0           0         420;
-           0           0         269;
-           0           0         176;
-           0           0         121;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           0           0           0;
-           ];
+% The first five rows should be enough to verify writing the file
+% correctly.
+expected_bincounts = [...
+        6799        2200        1383;
+        8012        2732        2696;
+        8780        3327        2638;
+        8563        4637        2632;
+        7622        4623        3741;
+        ];
        
-result_expected_means = 1e5 * [...
-    0.2213    2.4800    4.0710
-    0.2209    2.4616    4.0412
-    0.2201    2.5476    4.1967
-    0.2192    2.5526    4.2694
-    0.2202    2.4836    4.2491
-    0.2231    2.4599    4.2389
-    0.2245    2.5201    4.1942
-    0.2474    2.5473    4.3616
-    0.3723    2.3949    4.5641
-    0.4764    2.2965    4.6751
-    0.6809    2.0817    4.6095
-    1.0763    1.7331    5.6210
-    1.5787    1.5278    6.6428
-    1.9343    1.4047    7.4223
+expected_means = 1e5 * [...
+    0.2217    2.4948    4.1064
+    0.2219    2.4891    4.0757
+    0.2211    2.5766    4.2599
+    0.2205    2.5874    4.3344
+    0.2216    2.5099    4.3095
+    0.2255    2.4862    4.2764
+    0.2281    2.5457    4.2586
+    0.2539    2.5739    4.4073
+    0.3791    2.4218    4.6213
+    0.4891    2.3266    4.7217
+    0.6924    2.1068    4.6593
+    1.0930    1.7513    5.6729
+    1.5909    1.5451    6.7144
+    1.9472    1.4175    7.4609
     ];
 
-result_expected_stds = [...
-    1.5962    6.7130    8.0132
-    1.5880    6.7764    8.0448
-    1.5852    6.7717    7.9832
-    1.5882    6.8049    8.0720
-    1.5874    6.6735    7.9756
-    1.6029    6.7155    8.1864
-    1.6348    6.6808    7.9787
-    1.8582    6.6884    8.1892
-    2.9436    6.3747    8.2777
-    3.5229    6.0781    8.3190
-    4.3920    5.7806    8.1339
-    5.1732    5.2044    8.6436
-    5.5498    4.6336    8.4909
-    5.5327    4.3326    8.3846
+expected_stds = [...
+    1.6006    6.7653    8.1000
+    1.5990    6.8670    8.1306
+    1.5981    6.8650    8.1230
+    1.6036    6.9155    8.2135
+    1.6035    6.7565    8.1069
+    1.6427    6.8020    8.2742
+    1.7030    6.7618    8.1220
+    1.9914    6.7701    8.2937
+    3.0568    6.4579    8.4052
+    3.6868    6.1704    8.4187
+    4.5068    5.8686    8.2393
+    5.2819    5.2780    8.7369
+    5.6018    4.7061    8.5892
+    5.5773    4.3900    8.4391
     ];
 
 assertEqual(numel(sampleIDs), 7);
@@ -189,11 +127,11 @@ assertEqual(numel(sampleIDs), 7);
 assertEqual(sampleIDs{1}, 'Dox 0.1/0.2');
 assertEqual(sampleIDs{7}, 'Dox 1000.0/2000.0');
 
-% spot-check binCounts (Not sure why this is failing)
-% assertElementsAlmostEqual(binCountsCell{1}, result1_expected_bincounts, 'relative', 1e-2);
+% spot-check first five rows of binCounts
+assertElementsAlmostEqual(binCounts(1:5,:), expected_bincounts, 'relative', 1e-2);
 
 % spot-check geo means and geo std devs.
 for i=1:7,
-    assertElementsAlmostEqual(geoMeans(i,:), result_expected_means(i,:), 'relative', 1e-2);
-    assertElementsAlmostEqual(geoStdDevs(i,:),  result_expected_stds(i,:),  'relative', 1e-2);
+    assertElementsAlmostEqual(geoMeans(i,:), expected_means(i,:), 'relative', 1e-2);
+    assertElementsAlmostEqual(geoStdDevs(i,:),  expected_stds(i,:),  'relative', 1e-2);
 end
