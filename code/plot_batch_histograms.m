@@ -42,7 +42,7 @@ for i=1:n_conditions
             if(ischar(ls) && length(ls)==1 && length(findstr(ls, 'rgbcmykw')) == 1)
                 loglog([results{i}.means(k) results{i}.means(k)],[1 maxcount],[ls '--']); hold on;
             else
-                loglog([results{i}.means(k) results{i}.means(k)],[1 maxcount], 'Color', ls); hold on;
+                loglog([results{i}.means(k) results{i}.means(k)],[1 maxcount], 'Color', ls, 'LineStyle', '--'); hold on;
             end
         end
     end
