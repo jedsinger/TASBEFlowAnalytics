@@ -46,6 +46,7 @@ for i=1:n_conditions
             end
         end
     end
+    
     xlabel(getStandardUnits(CM)); ylabel('Count');
     ylim([1e0 10.^(ceil(log10(maxcount)))]);
     if(outputsettings.FixedInputAxis), xlim(outputsettings.FixedInputAxis); end;
