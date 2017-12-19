@@ -89,11 +89,6 @@ function perSampleTable = formatDataPerSample(channels, sampleId, binCenters, co
     end
 
     perSampleTable = [sampleIdPadded, num2cell(binCentersForAllReplicates), num2cell(binCounts)];
-%     if (is_octave)
-%         perSampleTable = [sampleIdPadded, num2cell(binCentersForAllReplicates), num2cell(binCounts)];
-%     else
-%         perSampleTable = [sampleIdPadded, array2table(binCentersForAllReplicates), array2table(binCounts)];
-%     end
 end
 
 function fileHeader = buildDefaultHistFileHeader(channels)
