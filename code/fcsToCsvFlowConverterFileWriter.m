@@ -15,7 +15,8 @@ function data = fcsToCsvFlowConverterFileWriter(CM, filename, with_AF, floor)
     
     % create output filename for cloud
     [filepath,name,ext] = fileparts(filename);
-    csvName = ['/tmp/' name '_PointCloud.csv'];
+    filepath = '/tmp/';
+    csvName = fullfile(filepath, [name '_PointCloud.csv']);
     
     % sanitize the channel names
     channels = getChannels(CM);
