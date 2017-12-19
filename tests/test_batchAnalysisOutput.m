@@ -56,8 +56,13 @@ save('/tmp/LacI-CAGop-batch.mat','AP','bins','file_pairs','OS','results','sample
 [statisticsFile, histogramFile] = serializeBatchOutput(file_pairs, CM, AP, sampleresults, baseName);
 
 % Read the files into matlab tables
-statsTable = readtable(statisticsFile);
-histTable = readtable(histogramFile);
+if (is_octave)
+    statsTable = csv2cell(statisticsFile);
+    histTable = csv2cell(histogramFile);
+else
+    statsTable = readtable(statisticsFile);
+    histTable = readtable(histogramFile);
+end
 
 % Split the stats table
 geoMeans = statsTable{:,5:7};

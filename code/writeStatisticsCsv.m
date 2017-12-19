@@ -17,31 +17,45 @@ function statisticsFile = writeStatisticsCsv(channels, sampleIds, sampleresults,
     geoMeans = cell(numConditions, 1);
     geoStdDev = cell(numConditions, 1);
     
+    replicates = zeros(numConditions, 1);
+    
     for i=1:numConditions
-        numReplicates = numel(sampleresults{i});
-        totalCounts{i} = cell(1,numReplicates);
-        geoMeans{i} = cell(1,numReplicates);
-        geoStdDev{i} = cell(1,numReplicates);
-        for j=1:numReplicates
+        replicates(i) = numel(sampleresults{i});
+        totalCounts{i} = cell(1,replicates(i));
+        geoMeans{i} = cell(1,replicates(i));
+        geoStdDev{i} = cell(1,replicates(i));
+        for j=1:replicates(i)
             totalCounts{i}{j} = sum(sampleresults{i}{j}.BinCounts);
             geoMeans{i}{j} = sampleresults{i}{j}.Means;
             geoStdDev{i}{j} = sampleresults{i}{j}.StandardDevs;
         end
     end
     
-    % Column name creation moved due to naming conflict in matlab.
-    statsTable = table;
+    columnNames = buildDefaultStatsFileHeader(channels);
+    numColumns = numel(columnNames);
+    totalReplicates = sum(replicates);
+    
+    statsTable = cell(totalReplicates+1, numColumns);
+    statsTable(1, 1:numColumns) = columnNames;
+    endingRow = 1;  % Because the column labels are in the first row.
+    
+    % Put everything in a cell array for Octave
     for i=1:numConditions
-        % Build a table and concatenate 
-        perSampleTable = formatDataPerSampleIndivdualColumns(channels, sampleIds{i}, totalCounts{i}, geoMeans{i}, geoStdDev{i});
-        statsTable = [statsTable; perSampleTable];
+        startingRow = endingRow + 1;
+        endingRow = startingRow + replicates(i) - 1;
+        statsTable(startingRow:endingRow,1:numColumns) = formatDataPerSampleIndivdualColumns(channels, sampleIds{i}, totalCounts{i}, geoMeans{i}, geoStdDev{i});
     end
     
     % Needed to add column names when I created the tables due to conflicts
     % with the default names.  For a table, the column names must be valid
     % matlab variable names so I filtered out spaces and hypens and
     % replaced them with underscores.
-    writetable(statsTable, statisticsFile, 'WriteVariableNames', true);
+    if (is_octave)
+        cell2csv(statisticsFile, statsTable);
+    else
+        t = table(statsTable);
+        writetable(t, statisticsFile, 'WriteVariableNames', false);
+    end
 end
 
 function perSampleTable = formatDataPerSampleIndivdualColumns(channels, sampleId, totalCounts, means, stddevs)
@@ -60,63 +74,45 @@ function perSampleTable = formatDataPerSampleIndivdualColumns(channels, sampleId
     sampleIdPadding = cell(rowsOfPadding, 1);
     
     % Split by the channels so the table will have the correct column labels.
-    geoMeans = cell(1, numChannels);
-    geoStdDevs = cell(1, numChannels);
-    counts = cell(1, numChannels);
+    geoMeans = cell(numReplicates, numChannels);
+    geoStdDevs = cell(numReplicates, numChannels);
+    counts = cell(numReplicates, numChannels);
     
-    for i=1:numChannels
+    for i=1:numChannels        
         for j=1:numReplicates
-            geoMeans{i} = [geoMeans{i}; means{j}(i)];
-            geoStdDevs{i} = [geoStdDevs{i}; stddevs{j}(i)];
-            counts{i} = [counts{i}; totalCounts{j}(i)];
+            counts{j,i} = totalCounts{j}(i);
+            geoMeans{j,i} = means{j}(i);
+            geoStdDevs{j,i} = stddevs{j}(i);
         end
     end
     
     % Pad the sampleId
     ID = [{sampleId}; sampleIdPadding];
     
-    % TODO: How big will the data be?  Should we worry about trying to
-    % preallocate the table or not put on column specific headers?
-    
-    % Hacky way to build the table, but need the individual columns if we
-    % want individual column names.
-    perSampleTable = table(ID, 'VariableNames', {'ID'});
-    countsTable = table;
-    meanTable = table;
-    stdTable = table;
-    
-    % Add the counts as columns
-    for i=1:numChannels
-        channelName = getName(channels{i});
-        invalidChars = '-|\s';  % Matlab does not like hypens or whitespace in variable names.
-        matlabValidVariableNameChannelName = regexprep(channelName,invalidChars,'_');
-        
-        binColName = ['TotalCount_' matlabValidVariableNameChannelName];
-        meanColName = ['GeoMean_' matlabValidVariableNameChannelName];
-        stdDevColName = ['GeoStdDev_' matlabValidVariableNameChannelName];
-        
-        countsTable = [countsTable, table(counts{i},'VariableNames',{binColName})];
-        meanTable = [meanTable, table(geoMeans{i},'VariableNames',{meanColName})];
-        stdTable = [stdTable, table(geoStdDevs{i},'VariableNames',{stdDevColName})];
-    end
-    
-    perSampleTable = [perSampleTable, countsTable, meanTable, stdTable];
+    perSampleTable = [ID, counts, geoMeans, geoStdDevs];
     
 end
 
 function fileHeader = buildDefaultStatsFileHeader(channels)
     % Default file header to match the default file format.
+    numChannels = numel(channels);
+    
+    binNames = cell(1,numChannels);
+    meanNames = cell(1,numChannels);
+    stdDevNames = cell(1,numChannels);
     
     % Not elegant, but it gets the job done.
-    for i=1:numel(channels)
+    for i=1:numChannels
         channelName = getName(channels{i});
-        binNames{i} = ['BinCount_' channelName];
-        meanNames{i} = ['GeoMean_' channelName];
-        stdDevNames{i} = ['GeoStdDev_' channelName];
+        invalidChars = '-|\s';  % Matlab does not like hypens or whitespace in variable names.
+        matlabValidVariableNameChannelName = regexprep(channelName,invalidChars,'_');
+        binNames{i} = ['BinCount_' matlabValidVariableNameChannelName];
+        meanNames{i} = ['GeoMean_' matlabValidVariableNameChannelName];
+        stdDevNames{i} = ['GeoStdDev_' matlabValidVariableNameChannelName];
     end
     
     % Don't separate with commas. We want all the column names in a cell
     % array so we can pass them to a table.
-    fileHeader = {'ID', binNames, meanNames, stdDevNames};
+    fileHeader = {'ID', binNames{:}, meanNames{:}, stdDevNames{:}};
 end
 
