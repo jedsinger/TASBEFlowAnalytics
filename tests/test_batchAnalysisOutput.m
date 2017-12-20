@@ -56,18 +56,27 @@ save('/tmp/LacI-CAGop-batch.mat','AP','bins','file_pairs','OS','results','sample
 [statisticsFile, histogramFile] = serializeBatchOutput(file_pairs, CM, AP, sampleresults, baseName);
 
 % Read the files into matlab tables
-statsTable = readtable(statisticsFile);
-histTable = readtable(histogramFile);
+if (is_octave)
+    statsTable = csv2cell(statisticsFile);
+    histTable = csv2cell(histogramFile);
+    statsCell = statsTable(2:end,:);
+    histCell = histTable(2:end,:);
+else
+    statsTable = readtable(statisticsFile);
+    histTable = readtable(histogramFile);
+    statsCell = table2cell(statsTable);
+    histCell = table2cell(histTable);
+end
 
 % Split the stats table
-geoMeans = statsTable{:,5:7};
-geoStdDevs = statsTable{:,8:10};
+geoMeans = statsCell(:,5:7);
+geoStdDevs = statsCell(:,8:10);
 
 % Split the hist table
-binCounts = histTable{:,3:5};
+binCounts = histCell(:,3:5);
 
 % Strip out the padding put into the sampleIds, means, and stdDevs
-sampleIDListWithPadding = statsTable{:,1};
+sampleIDListWithPadding = statsCell(:,1);
 sampleIDs = sampleIDListWithPadding(find(~cellfun(@isempty,sampleIDListWithPadding)));
 
 
@@ -127,12 +136,12 @@ assertEqual(sampleIDs{1}, 'Dox 0.1/0.2');
 assertEqual(sampleIDs{7}, 'Dox 1000.0/2000.0');
 
 % spot-check first five rows of binCounts
-assertElementsAlmostEqual(binCounts(1:5,:), expected_bincounts, 'relative', 1e-2);
+assertElementsAlmostEqual(cell2mat(binCounts(1:5,:)), expected_bincounts, 'relative', 1e-2);
 
 % spot-check geo means and geo std devs.
 for i=1:7,
-    assertElementsAlmostEqual(geoMeans(i,:), expected_means(i,:), 'relative', 1e-2);
-    assertElementsAlmostEqual(geoStdDevs(i,:),  expected_stds(i,:),  'relative', 1e-2);
+    assertElementsAlmostEqual(cell2mat(geoMeans(i,:)), expected_means(i,:), 'relative', 1e-2);
+    assertElementsAlmostEqual(cell2mat(geoStdDevs(i,:)), expected_stds(i,:),  'relative', 1e-2);
 end
 
 % Check the first five rows of the first point cloud file
@@ -148,10 +157,16 @@ expected_pointCloud = [...
 firstPointCloudFile = '/tmp/LacI-CAGop_B3_B03_P3_PointCloud.csv';
 
 % Read the point cloud into matlab tables
-cloudTable = readtable(firstPointCloudFile);
+if (is_octave)
+    cloudTable = csv2cell(firstPointCloudFile);
+    cloudCell = cloudTable(2:end,:);
+else
+  cloudTable = readtable(firstPointCloudFile);
+  cloudCell = table2cell(cloudTable);
+end
 
 % Split the cloud table
-points = cloudTable{1:5,:};
+points = cloudCell(1:5,:);
 
 % spot-check first five rows of binCounts
-assertElementsAlmostEqual(points, expected_pointCloud, 'relative', 1e-2);
+assertElementsAlmostEqual(cell2mat(points), expected_pointCloud, 'relative', 1e-2);
