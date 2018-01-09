@@ -1,4 +1,4 @@
-function UT = beads_to_ERF_model(CM, settings, beadfile, makePlots, path)
+function [UT CM] = beads_to_ERF_model(CM, settings, beadfile, makePlots, path)
 % BEADS_TO_ERF_MODEL: Computes a linear function for transforming FACS 
 % measurements on the ERF channel into ERFs, using a calibration run of
 % RCP-30-5A.
