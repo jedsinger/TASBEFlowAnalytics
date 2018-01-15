@@ -159,7 +159,7 @@ expected_pointCloud = [...
     ];
 
 % The first point cloud file: /tmp/LacI-CAGop_B3_B03_P3_PointCloud.csv
-firstPointCloudFile = '/tmp/LacI-CAGop_B3_B03_P3_PointCloud.csv';
+firstPointCloudFile = '/tmp/CSV/LacI-CAGop_B3_B03_P3_PointCloud.csv';
 
 % Read the point cloud into matlab tables
 if (is_octave)
