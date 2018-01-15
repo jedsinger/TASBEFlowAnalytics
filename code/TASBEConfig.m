@@ -16,10 +16,12 @@ classdef TASBEConfig
             s.testing.fakeFigureSaves = 0;
             
             % Matlab GMdistribution
+            
             % Generic flow data analysis
             s.flow.rangeMin = 0;                           % bin minimum (log10 scale)
             s.flow.rangeMax = 7;                           % bin maximum (log10 scale)
-
+            s.flow.outputPointCloud = false;               % if true, output pointcloud for each calibrated read
+            s.flow.pointCloudPath = 'CSV/';                % location for pointcloud outputs
 
             % generic plots
             s.plotPath = 'plots/';          % where should any plot go?
