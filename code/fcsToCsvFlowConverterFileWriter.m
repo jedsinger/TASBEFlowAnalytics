@@ -15,7 +15,13 @@ function data = fcsToCsvFlowConverterFileWriter(CM, filename, with_AF, floor)
     
     % create output filename for cloud
     [filepath,name,ext] = fileparts(filename);
-    csvName = ['/tmp/' name '_PointCloud.csv'];
+    path = TASBEConfig.get('flow.pointCloudPath');
+    if ~isdir(path),
+        warning('TASBE:Utilities','Directory does not exist, attempting to create it: %s',path);
+        mkdir(path);
+    end
+    
+    csvName = [path '/' sanitize_name(name) '_PointCloud.csv'];
     
     % sanitize the channel names
     channels = getChannels(CM);
