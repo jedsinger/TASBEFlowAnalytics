@@ -47,7 +47,7 @@ function histogramFile = writeHistogramCsv(channels, sampleIds, sampleresults, b
         cell2csv(histogramFile, histTable);
     else
         t = table(histTable);
-        writetable(t, histTable, 'WriteVariableNames', false);
+        writetable(t, histogramFile, 'WriteVariableNames', false);
     end
         
 end
