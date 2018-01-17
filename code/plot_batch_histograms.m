@@ -19,6 +19,7 @@ fprintf('Plotting histograms');
 % one bincount plot per condition
 maxcount = 1e1;
 for i=1:n_conditions
+    % TODO: this should really be using a standard number
     h = figure('PaperPosition',[1 1 5 3.66]);
     set(h,'visible','off');
     bin_centers = results{i}.bincenters;
