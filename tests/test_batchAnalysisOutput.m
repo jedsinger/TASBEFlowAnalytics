@@ -7,6 +7,9 @@ function test_suite = test_batchAnalysisOutput
 
 function test_batchAnalysisEndtoend
 
+TASBEConfig.set('flow.outputPointCloud','true');
+TASBEConfig.set('flow.pointCloudPath','/tmp/CSV/');
+
 load('../TASBEFlowAnalytics-Tutorial/template_colormodel/CM120312.mat');
 stem1011 = '../TASBEFlowAnalytics-Tutorial/example_assay/LacI-CAGop_';
 
@@ -51,6 +54,8 @@ OS.FixedInputAxis = [1e4 1e10];
 plot_batch_histograms(results,sampleresults,OS,{'b','y','r'},CM);
 
 save('/tmp/LacI-CAGop-batch.mat','AP','bins','file_pairs','OS','results','sampleresults');
+
+TASBEConfig.set('flow.outputPointCloud','false');
 
 % Test serializing the output
 [statisticsFile, histogramFile] = serializeBatchOutput(file_pairs, CM, AP, sampleresults, baseName);
@@ -154,7 +159,7 @@ expected_pointCloud = [...
     ];
 
 % The first point cloud file: /tmp/LacI-CAGop_B3_B03_P3_PointCloud.csv
-firstPointCloudFile = '/tmp/LacI-CAGop_B3_B03_P3_PointCloud.csv';
+firstPointCloudFile = '/tmp/CSV/LacI-CAGop_B3_B03_P3_PointCloud.csv';
 
 % Read the point cloud into matlab tables
 if (is_octave)
