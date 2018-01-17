@@ -11,7 +11,7 @@ function plot_batch_histograms(results,sampleresults,outputsettings,linespecs,CM
 % 0..1 vectors representing RGB color values); currently, only single-letter 
 % color linespecs are properly handled.
 
-n_conditions = numel(sampleresults);
+n_conditions = size(sampleresults,1);
 n_colors = numel(linespecs);
 
 fprintf('Plotting histograms');
@@ -21,12 +21,12 @@ maxcount = 1e1;
 for i=1:n_conditions
     h = figure('PaperPosition',[1 1 5 3.66]);
     set(h,'visible','off');
-    replicates = sampleresults{i};
-    numReplicates = numel(replicates);
-    for j=1:numReplicates,
-        counts = replicates{j}.BinCounts;
-        bin_centers = results{i}.bincenters;
-        for k=1:n_colors
+    bin_centers = results{i}.bincenters;
+    for k=1:n_colors
+        replicates = sampleresults{i};
+        numReplicates = numel(replicates);
+        for j=1:numReplicates,
+            counts = replicates{j}.BinCounts;
             ls = linespecs{k};
             if(ischar(ls) && length(ls)==1 && length(findstr(ls, 'rgbcmykw')) == 1)
                 loglog(bin_centers,counts(:,k),ls); hold on;
@@ -36,6 +36,8 @@ for i=1:n_conditions
         end
         maxcount = max(maxcount,max(max(counts)));
     end
+    
+    
     for j=1:numReplicates,
         for k=1:n_colors
             ls = linespecs{k};
@@ -51,7 +53,7 @@ for i=1:n_conditions
     ylim([1e0 10.^(ceil(log10(maxcount)))]);
     if(outputsettings.FixedInputAxis), xlim(outputsettings.FixedInputAxis); end;
     %ylim([0 maxcount*1.1]);
-    title([outputsettings.StemName ' ' results{i}.condition ' bin counts, by color']);
+    title([outputsettings.StemName ' ' clean_for_latex(results{i}.condition) ' bin counts, by color']);
     outputfig(h,[outputsettings.StemName '-' results{i}.condition '-bincounts'],outputsettings.Directory);
     fprintf('.');
 end;
