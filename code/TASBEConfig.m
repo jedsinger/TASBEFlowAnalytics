@@ -88,6 +88,17 @@ classdef TASBEConfig
             s.compensation.plotSize = [];               % What size (in inches) should compensation figure be?
             defaults('compensation.plotSize') = 'supporting.heatmapPlotSize';
             
+            % TASBE Setting migration
+            s.SecondaryBeadChannel = '';            % Option to segment on a different channel, color
+            s.channel_template_file = '';           % An example of this is CM.BeadFile
+            s.override_units = [];                   % Also called k_ERF.  Is this a valid default?
+            s.override_autofluorescence = [];        % Code that uses this wants a mean AF value.  Valid default?
+            s.override_compensation = [];           % Matrix used to create a Linear Compensation Model
+            s.override_translation = [];            % Used to create a ColorTranslationModel
+            s.path = './';
+            s.force_first_bead_peak = [];
+            
+            
             % Beads
 %             s.beads = struct();
 %             s.beads.catalogFileName = 'BeadCatalog.xls';    % Where is the catalog file?
