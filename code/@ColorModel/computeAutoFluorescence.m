@@ -6,10 +6,10 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function autofluorescence_model=computeAutoFluorescence(CM,settings, path)
+function autofluorescence_model=computeAutoFluorescence(CM, path)
 
 if (nargin < 3)
-    path = getSetting(settings, 'path', './');
+    path = TASBEConfig.getexact('path', './');
 end
 
 % Import data from FCS files

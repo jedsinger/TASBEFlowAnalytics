@@ -1,4 +1,4 @@
-function [UT CM] = beads_to_ERF_model(CM, settings, beadfile, makePlots, path)
+function [UT CM] = beads_to_ERF_model(CM, beadfile, makePlots, path)
 % BEADS_TO_ERF_MODEL: Computes a linear function for transforming FACS 
 % measurements on the ERF channel into ERFs, using a calibration run of
 % RCP-30-5A.
@@ -25,9 +25,10 @@ if (nargin < 4)
     makePlots = CM.bead_plot;
 end
 if (nargin < 5)
-    path = getSetting(settings, 'path', './');
+    path = TASBEConfig.getexact('path', './');
 end
-force_peak = getSetting(settings,'force_first_bead_peak',[]);
+
+force_peak = TASBEConfig.getexact('force_first_bead_peak',[]);
 if ~isempty(force_peak)
     TASBESession.warn('TASBE:Beads','ForcedPeak','Forcing interpretation of first detected peak as peak number %i',force_peak);
 end
@@ -66,9 +67,9 @@ n = (size(bin_edges,2)-1);
 bin_centers = bin_edges(1:n)*10.^(bin_increment/2);
 
 % option of segmenting ERF on a separate secondary channel
-segment_secondary = hasSetting(settings,'SecondaryBeadChannel');
+segment_secondary = TASBEConfig.isSet('SecondaryBeadChannel');
 if segment_secondary
-    segmentName = getSetting(settings,'SecondaryBeadChannel');
+    segmentName = TASBEConfig.get('SecondaryBeadChannel');
 else
     segmentName = nameFC;
 end

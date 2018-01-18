@@ -61,14 +61,13 @@ CM=set_ERF_channel_name(CM, 'FITC-A');
 % Ignore channel data for ith channel if below 10^[value(i)]
 CM=set_translation_channel_min(CM,[2,2,2]);
 
-settings = TASBESettings();
-settings = setSetting(settings, 'path', '/tmp/plots');
+TASBEConfig.set('path', '/tmp/plots');
 % When dealing with very strong fluorescence, use secondary channel to segment
 %settings = setSetting(settings,'SecondaryBeadChannel','PE-Texas_Red-A');
 CM = add_filter(CM,autogate);
 
 % Execute and save the model
-CM=resolve(CM, settings);
+CM=resolve(CM);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check results in CM:
@@ -140,12 +139,10 @@ CM=set_bead_min(CM, 1.8);
 CM=set_bead_peak_threshold(CM, 600);
 CM=set_ERF_channel_name(CM, 'PE-Tx-Red-YG-A');
 
-settings = TASBESettings();
-settings = setSetting(settings, 'path', '/tmp/plots');
+TASBEConfig.set('path', '/tmp/plots');
 % Execute and save the model
-CM=resolve(CM, settings);
+CM=resolve(CM);
 save('-V7','/tmp/CM120312.mat','CM');
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check results in CM:
@@ -200,10 +197,9 @@ CM=set_bead_min(CM, 1.8);
 CM=set_bead_peak_threshold(CM, 600);
 CM=set_ERF_channel_name(CM, 'PE-Tx-Red-YG-A');
 
-settings = TASBESettings();
-settings = setSetting(settings, 'path', '/tmp/plots');
+TASBEConfig.set('path', '/tmp/plots');
 % Execute and save the model
-CM=resolve(CM, settings);
+CM=resolve(CM);
 save('-V7','/tmp/CM120312.mat','CM');
 
 

@@ -8,7 +8,7 @@ function test_suite = test_beadpeaks
 %%%%%%%%%%%%
 % Note: test_colormodel tests the one and many bead cast; we just need to test two and special cases
 
-function [CM, settings] = setupRedPeakCM()
+function [CM] = setupRedPeakCM()
 
 stem0312 = '../TASBEFlowAnalytics-Tutorial/example_controls/2012-03-12_';
 
@@ -35,18 +35,17 @@ CM=set_bead_channel(CM,'PE-TR');
 
 CM=set_ERF_channel_name(CM, 'PE-Tx-Red-YG-A');
 
-settings = TASBESettings();
-settings = setSetting(settings, 'path', '/tmp/plots');
+TASBEConfig.set('path', '/tmp/plots');
 
 
 function test_twopeaks
 
-[CM, settings] = setupRedPeakCM();
+[CM] = setupRedPeakCM();
 % Ignore all bead data below 10^[bead_min] as being too "smeared" with noise
 CM=set_bead_min(CM, 2.7);
 CM=set_bead_peak_threshold(CM, 600);
 % Execute and save the model
-CM=resolve(CM, settings);
+CM=resolve(CM);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check results in CM:
@@ -60,12 +59,12 @@ assertElementsAlmostEqual(UT.peak_sets{1},  [855.4849 2.4685e+03], 'relative', 1
 
 function test_toomanypeaks
 
-[CM, settings] = setupRedPeakCM();
+[CM] = setupRedPeakCM();
  % set threshold and min too low so that it should sweep up lots of noise, get too many peaks
 CM=set_bead_min(CM, 1);
 CM=set_bead_peak_threshold(CM, 300);
 % Execute and save the model
-CM=resolve(CM, settings);
+CM=resolve(CM);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check results in CM:
@@ -80,10 +79,10 @@ assertElementsAlmostEqual(UT.peak_sets{1},  expected_peaks, 'absolute', 1);
 
 function test_nopeaks
 
-[CM, settings] = setupRedPeakCM();
+[CM] = setupRedPeakCM();
 CM=set_bead_peak_threshold(CM, 1e7); % set too high to see anything
 % Execute and save the model
-CM=resolve(CM, settings);
+CM=resolve(CM);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check results in CM:
