@@ -41,15 +41,6 @@ bin_max = CM.bead_max;
 nameFC=getName(ERF_channel);
 i_ERF = find(CM,ERF_channel);
 
-% SpheroTech RCP-30-5A beads (8 peaks) - only 7 are used here, since the
-% first is not given a ERF value in the tech notes
-% fprintf('Matching to ERF values for %s beads\n', CM.bead_model);
-% fprintf('Assuming Lot AA01, AA02, AA03, AA04, AB01, AB02, AC01, or GAA01-R\n');
-% PeakERFs = [692 2192 6028 17493 35674 126907 290983];
-%PeakRelative = [77.13 108.17 135.42 164.11 183.31 217.49 239.84];
-%warning('Substituting a different RCP set');
-%PeakERFs = [791	2083	6562	16531	47575	136680	271771];
-
 [PeakERFs,units,actualBatch] = get_bead_peaks(CM.bead_model,CM.bead_channel,CM.bead_batch);
 CM.standardUnits = units;
 
