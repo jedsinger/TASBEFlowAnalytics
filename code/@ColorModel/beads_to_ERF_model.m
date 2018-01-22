@@ -44,9 +44,18 @@ i_ERF = find(CM,ERF_channel);
 [PeakERFs,units,actualBatch] = get_bead_peaks(CM.bead_model,CM.bead_channel,CM.bead_batch);
 CM.standardUnits = units;
 
+% NOTE: Calculations are done against the QuantifiedPeaks not PeakERFs.
+% The value of first_peak is the first valid peak in QuantifiedPeaks not
+% PeakERFs.  At the end of function, the peakOffset is added to first_peak
+% and is used in calculation of UnitTranslation.
+
+% NOTE: Thus, if reported messages or labels on plots are supposed to be
+% based on PeakERFS, then add peakOffset to first_peak and
+% numQuantifiedPeaks in messages and labels. Do not add it to num_peaks.
 totalNumPeaks = numel(PeakERFs);
 numQuantifiedPeaks = sum(~isnan(PeakERFs));
 quantifiedPeakERFs = PeakERFs((end-numQuantifiedPeaks+1):end);
+peakOffset = totalNumPeaks - numQuantifiedPeaks;
 
 TASBESession.succeed('TASBE:Beads','ObtainBeadPeaks','Found specified bead model and lot');
 
@@ -204,10 +213,10 @@ if(n_peaks>=2)
         best_i = -1;
         for i=0:(numQuantifiedPeaks-n_peaks),
           [poly,S] = polyfit(log10(peak_means),log10(quantifiedPeakERFs((1:n_peaks)+i)),1);
-          if S.normr <= fit_error, fit_error = S.normr; model = poly; first_peak=i+2; best_i = i; end;
+          if S.normr <= fit_error, fit_error = S.normr; model = poly; first_peak=i+1; best_i = i; end;
         end
         % Warn if setting to anything less than the top peak, since top peak should usually be visible
-        fprintf('Bead peaks identified as %i to %i of %i\n',first_peak,first_peak+n_peaks-1,totalNumPeaks);
+        fprintf('Bead peaks identified as %i to %i of %i\n',first_peak,first_peak+n_peaks-1,numQuantifiedPeaks);
         if best_i < (numQuantifiedPeaks-n_peaks) && n_peaks < 5,
             TASBESession.warn('TASBE:Beads','PeakIdentification','Few bead peaks and fit does not include highest: error likely');
         else
@@ -216,11 +225,11 @@ if(n_peaks>=2)
     else % 2 peaks
         TASBESession.warn('TASBE:Beads','PeakIdentification','Only two bead peaks found, assuming brightest two');
         [poly,S] = polyfit(log10(peak_means),log10(quantifiedPeakERFs(end-1:end)),1);
-        fit_error = S.normr; model = poly; first_peak = numQuantifiedPeaks;
+        fit_error = S.normr; model = poly; first_peak = numQuantifiedPeaks-1;
     end
     if ~isempty(force_peak), first_peak = force_peak; end
-    constrained_fit = mean(log10(quantifiedPeakERFs((1:n_peaks)+first_peak-2)) - log10(peak_means));
-    cf_error = mean(10.^abs(log10((quantifiedPeakERFs((1:n_peaks)+first_peak-2)./peak_means) / 10.^constrained_fit)));
+    constrained_fit = mean(log10(quantifiedPeakERFs((1:n_peaks)+first_peak-1)) - log10(peak_means));
+    cf_error = mean(10.^abs(log10((quantifiedPeakERFs((1:n_peaks)+first_peak-1)./peak_means) / 10.^constrained_fit)));
     % Final fit_error should be close to zero / 1-fold
     if(cf_error>1.05), 
         TASBESession.warn('TASBE:Beads','PeakFitQuality','Bead calibration may be incorrect: fit more than 5 percent off: error = %.2d',cf_error); 
@@ -232,7 +241,7 @@ if(n_peaks>=2)
 elseif(n_peaks==1) % 1 peak
     TASBESession.warn('TASBE:Beads','PeakIdentification','Only one bead peak found, assuming brightest');
     TASBESession.skip('TASBE:Beads','PeakFitQuality','Fit quality irrelevant for single peak');
-    fit_error = 0; first_peak = totalNumPeaks;
+    fit_error = 0; first_peak = numQuantifiedPeaks;
     if ~isempty(force_peak), first_peak = force_peak; end
     k_ERF = PeakERFs(first_peak)/peak_means;
 else % n_peaks = 0
@@ -278,11 +287,11 @@ end
 if makePlots>1
     h = figure('PaperPosition',[1 1 5 3.66]);
     set(h,'visible','off');
-    loglog(peak_means,quantifiedPeakERFs((1:n_peaks)+first_peak-2),'b*-'); hold on;
+    loglog(peak_means,quantifiedPeakERFs((1:n_peaks)+first_peak-1),'b*-'); hold on;
     %loglog([1 peak_means],[1 peak_means]*(10.^model(2)),'r+--');
     loglog([1 peak_means],[1 peak_means]*k_ERF,'go--');
     for i=1:n_peaks
-        text(peak_means(i),quantifiedPeakERFs(i+first_peak-2)*1.3,sprintf('%i',i+first_peak-1));
+        text(peak_means(i),quantifiedPeakERFs(i+first_peak-1)*1.3,sprintf('%i',i+first_peak-1));
     end
     xlabel([CM.bead_channel ' a.u.']); ylabel('Beads ERFs');
     title(sprintf('Peak identification for %s beads', CM.bead_model));
@@ -314,7 +323,7 @@ if makePlots
     end
 end
 
-UT = UnitTranslation([CM.bead_model ':' CM.bead_channel ':' CM.bead_batch],k_ERF, first_peak, fit_error, peak_sets);
+UT = UnitTranslation([CM.bead_model ':' CM.bead_channel ':' CM.bead_batch],k_ERF, first_peak+peakOffset, fit_error, peak_sets);
 
 end
 

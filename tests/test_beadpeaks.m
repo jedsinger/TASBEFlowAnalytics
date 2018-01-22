@@ -133,7 +133,7 @@ CM=resolve(CM);
 CMS = struct(CM);
 UT = struct(CMS.unit_translation);
 assertElementsAlmostEqual(UT.k_ERF,       0.2966, 'relative', 1e-2);
-assertElementsEqual(UT.first_peak,    2);
+assertElementsAlmostEqual(UT.first_peak,    2);
 assertElementsAlmostEqual(UT.fit_error, 0.0363,   'absolute', 0.002);
 expected_peaks = 1e5 .* [0.0100    0.0689    0.2023    0.5471    1.5223];
 assertElementsAlmostEqual(UT.peak_sets{1},  expected_peaks, 'relative', 1e-2);
