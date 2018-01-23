@@ -6,7 +6,7 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function [pm_results pm_sampleresults] = process_plusminus_batch( colorModel, batch_description, analysisParams, OSbin)
+function [pm_results pm_sampleresults] = process_plusminus_batch( colorModel, batch_description, analysisParams)
 % batch_description is a cell-array of: {condition_name, inducer_name, plus_level_file_pairs, minus_level_file_pairs}
 % pm_results is a cell-array of PlusMinusResults
 
@@ -53,9 +53,10 @@ for i = 1:batch_size
     pm_sampleresults{i,2} = m_sampleresults;
     
     if nargin>3, % if supplied an output setting, dump bincounts files
-        OSp = OSbin; OSp.StemName = [OSp.StemName condition_name '-plus'];
-        plot_bin_statistics(p_sampleresults,OSp);
-        OSm = OSbin; OSm.StemName = [OSm.StemName condition_name '-minus'];
-        plot_bin_statistics(m_sampleresults,OSm);
+        stemName = TASBEConfig.get('OS.StemName');
+        TASBEConfig.set('OS.StemName', [stemName condition_name '-plus']);
+        plot_bin_statistics(p_sampleresults);
+        TASBEConfig.set('OS.StemName', [stemName condition_name '-minus']);
+        plot_bin_statistics(m_sampleresults);
     end
 end
