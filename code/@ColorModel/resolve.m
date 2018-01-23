@@ -8,7 +8,7 @@
 
 function CM=resolve(CM, path) % call after construction and configuration
 
-if (nargin < 3)
+if (nargin < 2)
     path = TASBEConfig.getexact('path', './');
 end
 

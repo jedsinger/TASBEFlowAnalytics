@@ -21,10 +21,10 @@ function [UT CM] = beads_to_ERF_model(CM, beadfile, makePlots, path)
 % package distribution's top directory.
 
 ERF_channel = CM.ERF_channel;
-if (nargin < 4)
+if (nargin < 3)
     makePlots = CM.bead_plot;
 end
-if (nargin < 5)
+if (nargin < 4)
     path = TASBEConfig.getexact('path', './');
 end
 
