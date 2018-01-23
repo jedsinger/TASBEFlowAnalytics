@@ -243,7 +243,7 @@ elseif(n_peaks==1) % 1 peak
     TASBESession.skip('TASBE:Beads','PeakFitQuality','Fit quality irrelevant for single peak');
     fit_error = 0; first_peak = numQuantifiedPeaks;
     if ~isempty(force_peak), first_peak = force_peak; end
-    k_ERF = PeakERFs(first_peak)/peak_means;
+    k_ERF = quantifiedPeakERFs(first_peak)/peak_means;
 else % n_peaks = 0
     TASBESession.warn('TASBE:Beads','PeakIdentification','Bead calibration failed: found no bead peaks; using single dummy peak');
     TASBESession.skip('TASBE:Beads','PeakFitQuality','Fit quality irrelevant for single peak');

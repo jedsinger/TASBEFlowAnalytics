@@ -7,8 +7,8 @@
 % package distribution's top directory.
 
 function plot_IO_characterization(results,in_channel,out_channel)
-if nargin<3, in_channel = 'input'; end;
-if nargin<4, out_channel = 'output'; end;
+if nargin<2, in_channel = 'input'; end;
+if nargin<3, out_channel = 'output'; end;
 
 step = TASBEConfig.get('OS.PlotEveryN');
 ticks = TASBEConfig.get('OS.PlotTickMarks');
