@@ -6,12 +6,15 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function plot_IO_characterization(results,outputsettings,in_channel,out_channel)
+function plot_IO_characterization(results,in_channel,out_channel)
 if nargin<3, in_channel = 'input'; end;
 if nargin<4, out_channel = 'output'; end;
 
-step = outputsettings.PlotEveryN;
-ticks = outputsettings.PlotTickMarks;
+step = TASBEConfig.get('OS.PlotEveryN');
+ticks = TASBEConfig.get('OS.PlotTickMarks');
+stemName = TASBEConfig.get('OS.StemName');
+deviceName = TASBEConfig.get('OS.DeviceName');
+directory = TASBEConfig.get('OS.Directory');
 
 AP = getAnalysisParameters(results);
 n_bins = get_n_bins(getBins(AP));
@@ -39,10 +42,10 @@ end;
 %if(outputSettings.FixedAxis), axis([1e2 1e10 1e2 1e10]); end;
 xlabel(['IFP ' in_units]); ylabel(['OFP ' out_units]);
 set(gca,'XScale','log'); set(gca,'YScale','log');
-if(outputsettings.FixedInputAxis), xlim(outputsettings.FixedInputAxis); end;
-if(outputsettings.FixedOutputAxis), ylim(outputsettings.FixedOutputAxis); end;
-title(['Raw ',outputsettings.StemName,' transfer curve, colored by constitutive bin']);
-outputfig(h,[outputsettings.StemName,'-',outputsettings.DeviceName,'-mean'],outputsettings.Directory);
+if(TASBEConfig.isSet('OS.FixedInputAxis')), xlim(TASBEConfig.get('OS.FixedInputAxis')); end;
+if(TASBEConfig.isSet('OS.FixedOutputAxis')), ylim(TASBEConfig.get('OS.FixedOutputAxis')); end;
+title(['Raw ',stemName,' transfer curve, colored by constitutive bin']);
+outputfig(h,[stemName,'-',deviceName,'-mean'],directory);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Plasmid system is disabled, due to uncertainty about correctness

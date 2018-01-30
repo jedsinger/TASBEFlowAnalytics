@@ -50,14 +50,17 @@ batch_description = {...
  };
 
 % Execute the actual analysis
-OSbin = OutputSettings('',device_name,'','/tmp/plots/');
-results = process_plusminus_batch( CM, batch_description, AP, OSbin);
+TASBEConfig.set('OS.DeviceName',device_name);
+TASBEConfig.set('OS.Directory','/tmp/plots');
+results = process_plusminus_batch( CM, batch_description, AP);
 
 % Make additional output plots
 for i=1:numel(results)
-    OS = OutputSettings(batch_description{i}{1},device_name,'','/tmp/plots/');
-    OS.PlotTickMarks = 1;
-    plot_plusminus_comparison(results{i},OS)
+    TASBEConfig.set('OS.StemName',batch_description{i}{1});
+    TASBEConfig.set('OS.DeviceName',device_name);
+    TASBEConfig.set('OS.Directory','/tmp/plots');
+    TASBEConfig.set('OS.PlotTickMarks',1);
+    plot_plusminus_comparison(results{i})
 end
 
 save('-V7','/tmp/LacI-CAGop-plus-minus.mat','batch_description','AP','results');

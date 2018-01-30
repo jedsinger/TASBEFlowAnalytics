@@ -98,6 +98,28 @@ classdef TASBEConfig
             s.path = './';
             s.force_first_bead_peak = [];
             
+            % OutputSettings migration
+            s.OS = struct();
+            s.OS.StemName='';
+            s.OS.DeviceName='';
+            s.OS.Description='';
+            s.OS.Directory='./'; % Default is current directory (might be wrong for windows)
+            s.OS.FixedInducerAxis = [];      % fixed -> [min max]
+            s.OS.FixedInputAxis =   [];      % fixed -> [min max]
+            s.OS.FixedNormalizedInputAxis =   [];      % fixed -> [min max]
+            s.OS.FixedOutputAxis =  [];      % fixed -> [min max]
+            s.OS.FixedNormalizedOutputAxis =  [];      % fixed -> [min max]
+            s.OS.FixedXAxis = [];             % fixed -> [min max]
+            s.OS.FixedYAxis = [];             % fixed -> [min max]
+            s.OS.ColorPlots = true;
+            s.OS.PlotPopulation = true;
+            s.OS.PlotNormalized = true;
+            s.OS.PlotNonnormalized = true;
+            s.OS.PlotEveryN = 1;
+            s.OS.PlotTickMarks = false;
+            s.OS.FigureSize = [];
+            s.OS.csvfile = []; % may be either an fid or a string
+            
             
             % Beads
 %             s.beads = struct();
