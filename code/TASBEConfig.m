@@ -95,6 +95,8 @@ classdef TASBEConfig
             s.override_autofluorescence = [];        % Code that uses this wants a mean AF value.  Valid default?
             s.override_compensation = [];           % Matrix used to create a Linear Compensation Model
             s.override_translation = [];            % Used to create a ColorTranslationModel
+            % TODO: fix this redundancy of path --> plotPath
+            defaults('path') = 'plotPath';
             s.path = './';
             s.force_first_bead_peak = [];
             
@@ -103,6 +105,9 @@ classdef TASBEConfig
             s.OS.StemName='';
             s.OS.DeviceName='';
             s.OS.Description='';
+
+            % TODO: fix this redundancy to plotPath and point the OS to appropriate uncommented sub-preferences
+            defaults('OS.Directory') = 'plotPath';
             s.OS.Directory='./'; % Default is current directory (might be wrong for windows)
             s.OS.FixedInducerAxis = [];      % fixed -> [min max]
             s.OS.FixedInputAxis =   [];      % fixed -> [min max]
