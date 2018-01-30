@@ -96,8 +96,8 @@ classdef TASBEConfig
             s.override_compensation = [];           % Matrix used to create a Linear Compensation Model
             s.override_translation = [];            % Used to create a ColorTranslationModel
             % TODO: fix this redundancy of path --> plotPath
+            s.path = [];
             defaults('path') = 'plotPath';
-            s.path = './';
             s.force_first_bead_peak = [];
             
             % OutputSettings migration
@@ -107,8 +107,8 @@ classdef TASBEConfig
             s.OS.Description='';
 
             % TODO: fix this redundancy to plotPath and point the OS to appropriate uncommented sub-preferences
+            s.OS.Directory=[]; % Default is current directory (might be wrong for windows)
             defaults('OS.Directory') = 'plotPath';
-            s.OS.Directory='./'; % Default is current directory (might be wrong for windows)
             s.OS.FixedInducerAxis = [];      % fixed -> [min max]
             s.OS.FixedInputAxis =   [];      % fixed -> [min max]
             s.OS.FixedNormalizedInputAxis =   [];      % fixed -> [min max]
