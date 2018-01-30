@@ -8,7 +8,7 @@
 
 function autofluorescence_model=computeAutoFluorescence(CM, path)
 
-if (nargin < 3)
+if (nargin < 2)
     path = TASBEConfig.getexact('path', './');
 end
 
