@@ -190,21 +190,6 @@ if(TASBEConfig.isSet('OS.FixedOutputAxis')), ylim(TASBEConfig.get('OS.FixedOutpu
 title(['+/- Ratios for ',stemName]);
 outputfig(h,[stemName,'-',deviceName,'-ratios'],directory);
 
-% ratio plot
-h = figure('PaperPosition',[1 1 5 3.66]);
-set(h,'visible','off');
-for i=1:step:n_var
-    which = pm_results.Valid(:,i,1) & pm_results.Valid(:,i,2);
-    semilogx(bin_centers(which),pm_results.Ratios(which,i),'-','Color',hsv2rgb([hues(i) 1 0.9])); hold on;
-end;
-xlabel(['CFP ' cfp_units]); ylabel('Fold Activation');
-set(gca,'XScale','log'); set(gca,'YScale','log');
-legend(legendentries,'Location','Best');
-if(TASBEConfig.isSet('OS.FixedInputAxis')), xlim(TASBEConfig.get('OS.FixedInputAxis')); end;
-if(TASBEConfig.isSet('OS.FixedOutputAxis')), ylim(TASBEConfig.get('OS.FixedOutputAxis')); end;
-title(['+/- Ratios for ',stemName]);
-outputfig(h,[stemName,'-',deviceName,'-ratios'],directory);
-
 % SNR plots
 if n_var == 1, 
     pmlegendentries{1} = 'Output SNR';
