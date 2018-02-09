@@ -59,9 +59,6 @@ peakOffset = totalNumPeaks - numQuantifiedPeaks;
 TASBESession.succeed('TASBE:Beads','ObtainBeadPeaks','Found specified bead model and lot');
 
 
-TASBESession.succeed('TASBE:Beads','ObtainBeadPeaks','Found specified bead model and lot');
-
-
 % identify peaks
 bin_increment = 0.02;
 bin_edges = 10.^(bin_min:bin_increment:bin_max);
