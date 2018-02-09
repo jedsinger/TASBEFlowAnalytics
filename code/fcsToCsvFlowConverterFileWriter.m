@@ -13,36 +13,36 @@ function data = fcsToCsvFlowConverterFileWriter(CM, filename, with_AF, floor)
     % process the file to obtain point cloud
     data = readfcs_compensated_ERF(CM, filename, with_AF, floor);
     
-    if (~(TASBEConfig.isSet('makePointCloudFiles')) || TASBEConfig.get('makePointCloudFiles'))
-        % create output filename for cloud
-        [filepath,name,ext] = fileparts(filename);
-        filepath = '/tmp/';
-        if (TASBEConfig.isSet('outputDirectory'))
-            filepath = TASBEConfig.get('outputDirectory')
-        end
-        csvName = fullfile(filepath, [name '_PointCloud.csv']);
-    
-        % sanitize the channel names
-        channels = getChannels(CM);
-        sanitizedChannelName = cell(1, numel(channels));
-    
-        for i=1:numel(channels)
-            channelName = getName(channels{i});
-            invalidChars = '-|\s';  % Matlab does not like hypens or whitespace in variable names.
-            sanitizedChannelName{i} = regexprep(channelName,invalidChars,'_');
-        end
-    
-        % Use the channel names as the column labels
-        columnLabels = strjoin(sanitizedChannelName, ',');
-    
-        % Write column labels to file
-        fprintf('Writing Point Cloud CSV file: %s\n', csvName);
-        fid = fopen(csvName,'w');
-        fprintf(fid, '%s\n', columnLabels);
-        fclose(fid);
-    
-        % Write the data to the file
-        dlmwrite(csvName, data, '-append','precision','%.2f');
+    % create output filename for cloud
+    [filepath,name,ext] = fileparts(filename);
+    path = TASBEConfig.get('flow.pointCloudPath');
+    if ~isdir(path),
+        warning('TASBE:Utilities','Directory does not exist, attempting to create it: %s',path);
+        mkdir(path);
     end
+    
+    csvName = [path '/' sanitize_name(name) '_PointCloud.csv'];
+    
+    % sanitize the channel names
+    channels = getChannels(CM);
+    sanitizedChannelName = cell(1, numel(channels));
+
+    for i=1:numel(channels)
+        channelName = getName(channels{i});
+        invalidChars = '-|\s';  % Matlab does not like hypens or whitespace in variable names.
+        sanitizedChannelName{i} = regexprep(channelName,invalidChars,'_');
+    end
+
+    % Use the channel names as the column labels
+    columnLabels = strjoin(sanitizedChannelName, ',');
+
+    % Write column labels to file
+    fprintf('Writing Point Cloud CSV file: %s\n', csvName);
+    fid = fopen(csvName,'w');
+    fprintf(fid, '%s\n', columnLabels);
+    fclose(fid);
+
+    % Write the data to the file
+    dlmwrite(csvName, data, '-append','precision','%.2f');
 end
 

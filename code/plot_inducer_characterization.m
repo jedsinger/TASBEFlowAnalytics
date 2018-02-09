@@ -6,10 +6,13 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function plot_inducer_characterization(results,outputsettings)
+function plot_inducer_characterization(results)
 
-step = outputsettings.PlotEveryN;
-ticks = outputsettings.PlotTickMarks;
+step = TASBEConfig.get('OS.PlotEveryN');
+ticks = TASBEConfig.get('OS.PlotTickMarks');
+stemName = TASBEConfig.get('OS.StemName');
+deviceName = TASBEConfig.get('OS.DeviceName');
+directory = TASBEConfig.get('OS.Directory');
 
 AP = getAnalysisParameters(results);
 n_bins = get_n_bins(getBins(AP));
@@ -44,10 +47,10 @@ for i=1:step:n_bins
 end;
 xlabel(['[',InducerName,']']); ylabel(['IFP ' in_units]);
 set(gca,'XScale','log'); set(gca,'YScale','log');
-if(outputsettings.FixedInducerAxis), xlim(outputsettings.FixedInducerAxis); end;
-if(outputsettings.FixedInputAxis), ylim(outputsettings.FixedInputAxis); end;
-title(['Raw ',outputsettings.DeviceName,' transfer curve, colored by constitutive bin (non-equivalent colors)']);
-outputfig(h,[outputsettings.StemName,'-',outputsettings.DeviceName,'-mean'],outputsettings.Directory);
+if(TASBEConfig.isSet('OS.FixedInducerAxis')), xlim(TASBEConfig.get('OS.FixedInducerAxis')); end;
+if(TASBEConfig.isSet('OS.FixedInputAxis')), ylim(TASBEConfig.get('OS.FixedInputAxis')); end;
+title(['Raw ',deviceName,' transfer curve, colored by constitutive bin (non-equivalent colors)']);
+outputfig(h,[stemName,'-',deviceName,'-mean'],directory);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Plasmid system is disabled, due to uncertainty about correctness

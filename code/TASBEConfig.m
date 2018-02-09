@@ -16,10 +16,12 @@ classdef TASBEConfig
             s.testing.fakeFigureSaves = 0;
             
             % Matlab GMdistribution
+            
             % Generic flow data analysis
             s.flow.rangeMin = 0;                           % bin minimum (log10 scale)
             s.flow.rangeMax = 7;                           % bin maximum (log10 scale)
-
+            s.flow.outputPointCloud = false;               % if true, output pointcloud for each calibrated read
+            s.flow.pointCloudPath = 'CSV/';                % location for pointcloud outputs
 
             % generic plots
             s.plotPath = 'plots/';          % where should any plot go?
@@ -85,6 +87,44 @@ classdef TASBEConfig
             defaults('compensation.plotPath') = 'supporting.plotPath';
             s.compensation.plotSize = [];               % What size (in inches) should compensation figure be?
             defaults('compensation.plotSize') = 'supporting.heatmapPlotSize';
+            
+            % TASBE Setting migration
+            s.SecondaryBeadChannel = '';            % Option to segment on a different channel, color
+            s.channel_template_file = '';           % An example of this is CM.BeadFile
+            s.override_units = [];                   % Also called k_ERF.  Is this a valid default?
+            s.override_autofluorescence = [];        % Code that uses this wants a mean AF value.  Valid default?
+            s.override_compensation = [];           % Matrix used to create a Linear Compensation Model
+            s.override_translation = [];            % Used to create a ColorTranslationModel
+            % TODO: fix this redundancy of path --> plotPath
+            s.path = [];
+            defaults('path') = 'plotPath';
+            s.force_first_bead_peak = [];
+            
+            % OutputSettings migration
+            s.OS = struct();
+            s.OS.StemName='';
+            s.OS.DeviceName='';
+            s.OS.Description='';
+
+            % TODO: fix this redundancy to plotPath and point the OS to appropriate uncommented sub-preferences
+            s.OS.Directory=[]; % Default is current directory (might be wrong for windows)
+            defaults('OS.Directory') = 'plotPath';
+            s.OS.FixedInducerAxis = [];      % fixed -> [min max]
+            s.OS.FixedInputAxis =   [];      % fixed -> [min max]
+            s.OS.FixedNormalizedInputAxis =   [];      % fixed -> [min max]
+            s.OS.FixedOutputAxis =  [];      % fixed -> [min max]
+            s.OS.FixedNormalizedOutputAxis =  [];      % fixed -> [min max]
+            s.OS.FixedXAxis = [];             % fixed -> [min max]
+            s.OS.FixedYAxis = [];             % fixed -> [min max]
+            s.OS.ColorPlots = true;
+            s.OS.PlotPopulation = true;
+            s.OS.PlotNormalized = true;
+            s.OS.PlotNonnormalized = true;
+            s.OS.PlotEveryN = 1;
+            s.OS.PlotTickMarks = false;
+            s.OS.FigureSize = [];
+            s.OS.csvfile = []; % may be either an fid or a string
+            
             
             % Beads
 %             s.beads = struct();

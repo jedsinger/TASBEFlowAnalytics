@@ -6,9 +6,12 @@
 % exception, as described in the file LICENSE in the TASBE analytics
 % package distribution's top directory.
 
-function plot_population_inducer_characterization(results,outputsettings)
+function plot_population_inducer_characterization(results)
 
-ticks = outputsettings.PlotTickMarks;
+ticks = TASBEConfig.get('OS.PlotTickMarks');
+stemName = TASBEConfig.get('OS.StemName');
+directory = TASBEConfig.get('OS.Directory');
+deviceName = TASBEConfig.get('OS.DeviceName');
 
 AP = getAnalysisParameters(results);
 n_components = getNumGaussianComponents(AP);
@@ -41,7 +44,7 @@ for i=1:n_components
 end;
 xlabel(['[',InducerName,']']); ylabel(['IFP ' in_units]);
 set(gca,'XScale','log'); set(gca,'YScale','log');
-if(outputsettings.FixedInducerAxis), xlim(outputsettings.FixedInducerAxis); end;
-if(outputsettings.FixedInputAxis), ylim(outputsettings.FixedInputAxis); end;
-title(['Population ',outputsettings.DeviceName,' transfer curve, colored by Gaussian component']);
-outputfig(h,[outputsettings.StemName,'-',outputsettings.DeviceName,'-pop-mean'],outputsettings.Directory);
+if(TASBEConfig.isSet('OS.FixedInducerAxis')), xlim(TASBEConfig.get('OS.FixedInducerAxis')); end;
+if(TASBEConfig.isSet('OS.FixedInputAxis')), ylim(TASBEConfig.get('OS.FixedInputAxis')); end;
+title(['Population ',deviceName,' transfer curve, colored by Gaussian component']);
+outputfig(h,[stemName,'-',deviceName,'-pop-mean'],directory);
